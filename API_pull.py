@@ -4,7 +4,7 @@ import sys
 my_headers = {'Ocp-Apim-Subscription-Key': 'f80b381101f842a990b4c94ad783dd59',
                 'LogicAppAPIKey' : '7A32B6EED6AAB6B64BFFB8BED0810424',
                 'StartDatetime' : '2022-01-05 00:00:00',
-                'EndDatetime' : '2022-01-10 00:00:00'}
+                'EndDatetime' : '2022-01-07 00:00:00'}
 
 
 
@@ -12,15 +12,15 @@ my_headers = {'Ocp-Apim-Subscription-Key': 'f80b381101f842a990b4c94ad783dd59',
 def getValetParkingMovements(start_datetime, end_datetime):
     
     response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLValetParkingMovements/manual/paths/invoke", headers=my_headers)
-    print(response.json())
+    return response.json()
 
 def getBookingData():
     response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLBookingDetail/manual/paths/invoke", headers=my_headers)
-    print(response.json())
+    return response.json()
 
 def getFlightSchedule():
     response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLFlightSchedule/manual/paths/invoke", headers=my_headers)
-    print(response.json())
+    return response.json()
 
 
 # Sample Input:
