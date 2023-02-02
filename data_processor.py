@@ -11,6 +11,8 @@ def getDateActivity(date="2022-01-06"):
     dateActivity = pd.concat([dateActivity, start, end])
     return dateActivity
 
+
+
 def dateFlow(date="2022-08-06"):
     dateActivity = getDateActivity(date)
     inFlow = dateActivity['startdatetime'].str.contains(date).sum()

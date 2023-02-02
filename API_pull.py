@@ -18,24 +18,44 @@ def getValetParkingMovements(start_datetime, end_datetime):
     response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLValetParkingMovements/manual/paths/invoke", headers=my_headers)
     return response.json()
 
-def getBookingData():
-    bookingData = pd.DataFrame()
-    for i in range(1, 3):
-        my_headers['StartDatetime'] = dates[i-1]
-        my_headers['EndDatetime'] = dates[i]
-        response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLBookingDetail/manual/paths/invoke", headers=my_headers)
+# def getBookingData():
+#     bookingData = pd.DataFrame()
+#     for i in range(1, 13):
+#         my_headers['StartDatetime'] = dates[i-1]
+#         my_headers['EndDatetime'] = dates[i]
+#         response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLBookingDetail/manual/paths/invoke", headers=my_headers)
+#         data = response.json()['Table1']
+#         df = pd.DataFrame.from_dict(data, orient='columns')
+#         bookingData = pd.concat([bookingData, df])
+#     df.to_csv('booking_data.csv', index=False, mode='a', header=False)
+#     # data = response.json()['Table1']
+#     # df = pd.DataFrame.from_dict(data, orient='columns')
+#     # df.to_csv('booking_data.csv', index=False)
+
+def getBookingData(start_datetime, end_datetime):
+    my_headers['StartDatetime'] = start_datetime
+    my_headers['EndDatetime'] = end_datetime
+    response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLBookingDetail/manual/paths/invoke", headers=my_headers)
+    try:
         data = response.json()['Table1']
-        df = pd.DataFrame.from_dict(data, orient='columns')
-        bookingData = pd.concat([bookingData, df])
-    df.to_csv('booking_data.csv', index=False, mode='a', header=False)
-    # data = response.json()['Table1']
-    # df = pd.DataFrame.from_dict(data, orient='columns')
-    # df.to_csv('booking_data.csv', index=False)
+    except:
+        print(response.json())
+    df = pd.DataFrame.from_dict(data, orient='columns')
+
+    return df
 
 
 def getFlightSchedule():
-    response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLFlightSchedule/manual/paths/invoke", headers=my_headers)
-    return response.json()
+    bookingData = pd.DataFrame()
+    for i in range(1, 13):
+        my_headers['StartDatetime'] = dates[i-1]
+        my_headers['EndDatetime'] = dates[i]
+        response = requests.get("https://bristolairportdwhapi.azure-api.net/GetKCLFlightSchedule/manual/paths/invoke", headers=my_headers)
+        data = response.json()['Table1']
+        df = pd.DataFrame.from_dict(data, orient='columns')
+        print(df)
+        bookingData = pd.concat([bookingData, df])
+    df.to_csv('flight_data.csv', index=False, mode='a', header=False)
 
 
 # Sample Input:
