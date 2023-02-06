@@ -1,6 +1,6 @@
 import boto3 
 import pandas as pd
-import API_pull
+from API_handler import API_pull
 from tqdm import tqdm
 
 dynamodb = boto3.resource("dynamodb")

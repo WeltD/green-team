@@ -1,5 +1,6 @@
 import boto3
 import pandas as pd
+from API_handler import API_pull
 
 
 def populateBookingData():

@@ -10,7 +10,6 @@ from API_handler import API_pull
 
 
 
-
 dynamodb = boto3.resource("dynamodb")
 
 table = dynamodb.Table('flight_info')
