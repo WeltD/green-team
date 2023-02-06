@@ -1,14 +1,9 @@
-import boto3 
+import boto3
 import pandas as pd
-import API_pull
-from tqdm import tqdm
 
-dynamodb = boto3.resource("dynamodb")
 
-table = dynamodb.Table('flight_info')
-
-def populateFlightData():
-    flightData = pd.DataFrame()
+def populateBookingData():
+    bookingData = pd.DataFrame()
     
     # defines a list every month from 2018 till 2022
     dates = ["2018-02-01", "2018-03-01", "2018-04-01", "2018-05-01", "2018-06-01",
@@ -23,14 +18,12 @@ def populateFlightData():
             "2022-07-01", "2022-08-01", "2022-09-01", "2022-10-01", "2022-11-01", "2022-12-01",
             "2023-01-01", "2023-02-01"] 
     
+    for i in range(1, len(dates)):
+        data = API_pull.getBookingData(dates[i-1], dates[i])
+        bookingData = pd.concat([bookingData, data])
+
+    bookingData.to_csv('booking_data_test.csv', index=False, mode='a', header=False)
 
 
 
-
-    for i in tqdm(range(1, len(dates))):
-        data = API_pull.getFlightSchedule(dates[i-1], dates[i])
-        flightData = pd.concat([flightData, data])
-
-    flightData.to_csv('flight_data.csv', index=False, mode='a', header=False)
-
-populateFlightData()
+    
