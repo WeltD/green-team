@@ -463,7 +463,7 @@ wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production
 </details>
 
 <details>
-  <summary>15. mostVisitedDesitnations</summary>
+  <summary>15. mostVisitedDestinations</summary>
 </details>
 
 <details>
