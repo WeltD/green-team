@@ -19,6 +19,12 @@ const items = [
     getItem('PieChart', 'piechart'),
     getItem('Submenu', 'sub1-2', null, [getItem('Option 5', '5'), getItem('Option 6', '6')]),
   ]),
+  getItem('Booking', 'booking', <AppstoreOutlined />, [
+    getItem('BarChart', 'barchart'),
+  ]),
+  getItem('Cancellation', 'cancellation', <AppstoreOutlined />, [
+    getItem('BarChart', 'barchart'),
+  ]),
 ];
 
 const SideMenu = () => {

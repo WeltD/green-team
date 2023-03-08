@@ -62,15 +62,18 @@ const Bar = () => {
     setValue(dates);
   }
 
+  // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
     const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
     sendMessage(JSON.stringify(data))
   }
 
+  // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
       if(massageAction == 'cancellationDaily'){
         const data = JSON.parse(lastMessage?.data).datesCancelled
+
         if(data.length == 0) {
           setChartData([])
         } else {
@@ -93,6 +96,7 @@ const Bar = () => {
 
   return (
     <div>
+      {/* Breadcrumb */}
       <Breadcrumb
          style={{
               margin: '16px 0',
@@ -105,10 +109,13 @@ const Bar = () => {
             <Breadcrumb.Item>
             <Link to={'/barchart'}>BarChart</Link>
             </Breadcrumb.Item>
+
       </Breadcrumb>
 
+      {/* Chart */}
       <BarChart data = {chartData}/>
 
+      {/* Date Picker */}
     <RangePicker
       value={dates || value}
       disabledDate={disabledDate}
@@ -118,8 +125,10 @@ const Bar = () => {
       picker="month"
     />
 
+    {/* Switch for daily/monthly */}
     <Switch defaultChecked onChange={onChangeSwitch} />
 
+    {/* Buttons */}
     <button onClick={onClickSubmit}>Send Message</button> 
     <button onClick={onClickVisualize}>Visualize</button> 
 
