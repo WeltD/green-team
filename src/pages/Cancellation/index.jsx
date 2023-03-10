@@ -1,29 +1,41 @@
 import React, { useState, useEffect } from 'react'
-import { Breadcrumb, DatePicker, Switch} from 'antd'
+import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
-import HeatMap from '../../../components/Charts/Heatmap'
+import BarChart from '../../components/Charts/BarChart'
 
 import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
 
-
-const Pie = () => {
-
+const Cancellation = () => {
+  // Websocket connection
   const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
+
+  // State variables
+  //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
+  const [range, setRange] = useState(20);
+
+  //Radio State
+  const [radioValue, setRadioValue] = useState(1);
+
+  //Websocket connection State
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-  const [range, setRange] = useState(20);
-  const [chartData, setChartData] = useState([]);
-  const [massageAction, setMassageAction] = useState('averageDelayDaily');
-  const [lastMessageId, setLastMessageId] = useState(0);
+  const [massageAction, setMassageAction] = useState('cancellationDaily');
+
+  //Chart State
+  const [chartData, setChartData] = useState([[],[]]);
+
+  //Steps State
+  const [current, setCurrent] = useState(0);
+  const [status, setStatus] = useState('process');
+
 
   useEffect(() => {
     if (lastMessage) {
-      setLastMessageId(lastMessageId + 1)
-      console.log(lastMessageId)
+      setCurrent(2);
     }
   }, [lastMessage]);
   
@@ -39,6 +51,8 @@ const Pie = () => {
 
   
   const onOpenChange = (open) => {
+    setCurrent(0);
+    setStatus('process');
     if (open) {
       setDates([null, null]);
     } else {
@@ -49,13 +63,22 @@ const Pie = () => {
   const onChangeSwitch = (checked) => {
     setValue(null);
     setChartData([]);
+    setCurrent(0);
+    setStartDate(null);
+    setEndDate(null);
+    setStatus('process');
     if(checked){
       setRange(20);
-      setMassageAction('averageDelayDaily');
+      setMassageAction('cancellationDaily');
     } else {
       setRange(40);
-      setMassageAction('averageDelayMonthly');
+      setMassageAction('cancellationMonthly');
     }
+  };
+
+  const onChangeRadio = (e) => {
+    console.log('radio checked', e.target.value);
+    setRadioValue(e.target.value);
   };
 
   const onChangeRangePicker = (dates) => {
@@ -67,39 +90,42 @@ const Pie = () => {
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
     const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
+    setCurrent(1);
     sendMessage(JSON.stringify(data))
   }
 
   // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
-      if(massageAction == 'averageDelayDaily'){
-        const data = JSON.parse(lastMessage?.data).inbound.Date[1]
+      if(massageAction === 'cancellationDaily'){
 
-        if(data.length == 0) {
+        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
+
+        if(data.length === 0) {
           setChartData([])
         } else {
           setChartData(data)
         }
       }
       else {
-        const data = JSON.parse(lastMessage?.data).inbound.month[1]
-        if(data.length == 0) {
+      
+        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).monthsRates : JSON.parse(lastMessage?.data).monthsCancelled
+
+        if(data.length === 0) {
           setChartData([])
         } else {
           setChartData(data)
         }
+
       }
     } catch (error) {
-      console.log(error)
+      setStatus('error')
     }
   }
 
-
   return (
     <div>
-        
-        {/* Breadcrumb */}
+      {/* Breadcrumb */}
       <Breadcrumb
          style={{
               margin: '16px 0',
@@ -110,13 +136,13 @@ const Pie = () => {
             </Breadcrumb.Item>
 
             <Breadcrumb.Item>
-            <Link to={'/barchart'}>BarChart</Link>
+            <Link to={'/cancellation'}>Cancellation</Link>
             </Breadcrumb.Item>
 
       </Breadcrumb>
 
       {/* Chart */}
-      <HeatMap data = {chartData} range = {["2022-01", "2022-02","2022-03"]}/>
+      <BarChart data = {chartData}/>
 
       {/* Date Picker */}
     <RangePicker
@@ -135,14 +161,39 @@ const Pie = () => {
     <button onClick={onClickSubmit}>Send Message</button> 
     <button onClick={onClickVisualize}>Visualize</button> 
 
+    {/* Radio */}
+    <Radio.Group onChange={onChangeRadio} value={radioValue}>
+        <Radio value={1}>Rates</Radio>
+        <Radio value={2}>Numbers</Radio>
+    </Radio.Group>
+
+
+    {/* Steps */}
+    <Steps
+      current={current}
+      status= {status}
+      items={[
+        {
+          title: 'Select date',  
+        },
+        {
+          title: 'Analyze data',  
+        },
+        {
+          title: 'Visualize data',          
+        },
+      ]}
+    />
+
     <p>startDate message: {startDate}</p>
     <p>endDate message: {endDate}</p>
     <p>Last message: {lastMessage?.data}</p>
     <p>type: {typeof(lastMessage?.data)}</p>
     <p>Last message id: </p>
 
+      
     </div>
   )
 }
 
-export default Pie
+export default Cancellation

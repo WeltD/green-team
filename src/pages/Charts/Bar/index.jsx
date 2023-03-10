@@ -3,7 +3,7 @@ import { Breadcrumb, DatePicker, Switch} from 'antd'
 import { Link } from 'react-router-dom'
 import BarChart from '../../../components/Charts/BarChart'
 
-import useWebSocket from 'react-use-websocket';
+import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
 

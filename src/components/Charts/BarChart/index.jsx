@@ -21,7 +21,7 @@ const BarChart = (props) => {
     //show the chart
     <div>
       <div>
-        <ReactEcharts option={option} />
+        <ReactEcharts option={option}  notMerge = {true}/>
       </div>
     </div>
   )
