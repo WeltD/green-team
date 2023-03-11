@@ -20,7 +20,8 @@ const items = [
     getItem('Submenu', 'sub1-2', null, [getItem('Option 5', '5'), getItem('Option 6', '6')]),
   ]),
   getItem('Booking', 'booking', <AppstoreOutlined />, [
-    getItem('BarChart', 'barchart'),
+    getItem('BarChart', 'bookingMetricBar'),
+    getItem('Heat Map', 'bookingMetricHeatMap'),
   ]),
   getItem('Cancellation', 'cancellation', <AppstoreOutlined />,  [
     getItem('BarChart', 'cancellationBar'),

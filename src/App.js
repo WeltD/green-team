@@ -9,6 +9,10 @@ import Home from './pages/Home';
 import Bar from './pages/Charts/Bar';
 import Pie from './pages/Charts/Pie';
 
+// Booking Metric
+import BookingMetricBar from './pages/BookingMetric/BookingMetricBar';
+import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
+
 //Cancellation
 import CancellationBar from './pages/Cancellation/CancellationBar';
 import CancellationHeatMap from './pages/Cancellation/CancellationHeatMap';
@@ -26,6 +30,10 @@ function App() {
               <Route path="/" element={<Home />}/>
               <Route path="/barchart" element={<Bar />}/>
               <Route path="/piechart" element={<Pie />}/>
+
+              {/* Booking Metric */}
+              <Route path="/bookingMetricBar" element={<BookingMetricBar />}/>
+              <Route path="/bookingMetricHeatMap" element={<BookingMetricHeatMap />}/>
 
               {/* Cancellation */}
               <Route path="/cancellationBar" element={<CancellationBar />}/>
