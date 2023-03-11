@@ -9,6 +9,10 @@ import Home from './pages/Home';
 import Bar from './pages/Charts/Bar';
 import Pie from './pages/Charts/Pie';
 
+// Average Key
+import AverageKeyBar from './pages/AverageKey/AverageKeyBar';
+import AverageKeyHeatMap from './pages/AverageKey/AverageKeyHeatMap';
+
 // Booking Metric
 import BookingMetricBar from './pages/BookingMetric/BookingMetricBar';
 import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
@@ -30,6 +34,10 @@ function App() {
               <Route path="/" element={<Home />}/>
               <Route path="/barchart" element={<Bar />}/>
               <Route path="/piechart" element={<Pie />}/>
+
+              {/* Average Key */}
+              <Route path="/AverageKeyBar" element={<AverageKeyBar />}/>
+              <Route path="/AverageKeyHeatMap" element={<AverageKeyHeatMap />}/>
 
               {/* Booking Metric */}
               <Route path="/bookingMetricBar" element={<BookingMetricBar />}/>

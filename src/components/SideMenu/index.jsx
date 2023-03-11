@@ -19,6 +19,10 @@ const items = [
     getItem('PieChart', 'piechart'),
     getItem('Submenu', 'sub1-2', null, [getItem('Option 5', '5'), getItem('Option 6', '6')]),
   ]),
+  getItem('Average Key', 'average key', <AppstoreOutlined />, [
+    getItem('BarChart', 'averageKeyBar'),
+    getItem('Heat Map', 'averageKeyHeatMap'),
+  ]),
   getItem('Booking', 'booking', <AppstoreOutlined />, [
     getItem('BarChart', 'bookingMetricBar'),
     getItem('Heat Map', 'bookingMetricHeatMap'),

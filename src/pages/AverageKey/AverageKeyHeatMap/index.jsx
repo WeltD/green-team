@@ -7,7 +7,7 @@ import useWebSocket from 'react-use-websocket'
 const { RangePicker } = DatePicker;
 const dayjs = require('dayjs')
 
-const CancellationHeatMap = () => {
+const AverageKeyHeatMap = () => {
   // Websocket connection
   const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
 
@@ -15,8 +15,8 @@ const CancellationHeatMap = () => {
   //Range/Date picker State
   const [date, setDate] = useState('2020-01');
 
-  //Radio State
-  const [radioValue, setRadioValue] = useState(1);
+  // //Radio State
+  // const [radioValue, setRadioValue] = useState(1);
 
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
@@ -34,10 +34,10 @@ const CancellationHeatMap = () => {
     }
   }, [lastMessage]);
   
-  const onChangeRadio = (e) => {
-    console.log('radio checked', e.target.value);
-    setRadioValue(e.target.value);
-  };
+  // const onChangeRadio = (e) => {
+  //   console.log('radio checked', e.target.value);
+  //   setRadioValue(e.target.value);
+  // };
 
   const onChangeDatePicker = (date, dateString) => {
     setCurrent(0);
@@ -51,7 +51,7 @@ const CancellationHeatMap = () => {
     const startDate = dayjs(date).startOf('month').format('YYYY-MM-DD') + ' T00:00:00';
     const endDate = dayjs(date).endOf('month').format('YYYY-MM-DD') + ' T23:59:59';
     console.log(startDate, endDate);
-    const data = { "action": 'cancellationDaily', "startDate": startDate, "endDate": endDate }
+    const data = { "action": 'averageKeysDaily', "startDate": startDate, "endDate": endDate }
     setCurrent(1);
     setStatus('process');
     sendMessage(JSON.stringify(data))
@@ -61,13 +61,14 @@ const CancellationHeatMap = () => {
   const onClickVisualize = () => {
     try {
 
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
+        const data = JSON.parse(lastMessage?.data).month
         
-        if (radioValue === 1) {
-          setChartMax(1)
-        } else if (radioValue === 2) {
-          setChartMax(100)
-        }
+        // if (radioValue === 1) {
+        //   setChartMax(1)
+        // } else if (radioValue === 2) {
+        //   setChartMax(100)
+        // }
+        setChartMax(200)
         
         if(data.length === 0) {
             setChartData([])
@@ -93,19 +94,19 @@ const CancellationHeatMap = () => {
             </Breadcrumb.Item>
 
             <Breadcrumb.Item>
-            <Link to={'/cancellation'}>Cancellation</Link>
+            <Link to={'/averageKey'}>Average Key</Link>
             </Breadcrumb.Item>
 
             <Breadcrumb.Item>
-            <Link to={'/cancellationHeatMap'}>HeatMap</Link>
+            <Link to={'/averageKeyHeatMap'}>Average Key HeatMap</Link>
             </Breadcrumb.Item>
 
       </Breadcrumb>
 
-      <p>Cancellation HeatMap</p>
+      <p>Average Key HeatMap</p>
       
       {/* Chart */}
-      <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1,2,3]}/>
+      <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1]}/>
 
       {/* Date Picker */}
       <DatePicker onChange={onChangeDatePicker} picker="month" />
@@ -114,11 +115,11 @@ const CancellationHeatMap = () => {
     <button onClick={onClickSubmit}>Send Message</button> 
     <button onClick={onClickVisualize}>Visualize</button> 
 
-    {/* Radio */}
+    {/* Radio
     <Radio.Group onChange={onChangeRadio} value={radioValue}>
         <Radio value={1}>Rates</Radio>
         <Radio value={2}>Numbers</Radio>
-    </Radio.Group>
+    </Radio.Group> */}
 
 
     {/* Steps */}
@@ -148,4 +149,4 @@ const CancellationHeatMap = () => {
   )
 }
 
-export default CancellationHeatMap
+export default AverageKeyHeatMap

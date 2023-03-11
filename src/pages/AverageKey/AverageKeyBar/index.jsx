@@ -7,7 +7,7 @@ import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
 
-const CancellationBar = () => {
+const AverageKeyBar = () => {
   // Websocket connection
   const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
 
@@ -17,13 +17,13 @@ const CancellationBar = () => {
   const [value, setValue] = useState(null);
   const [range, setRange] = useState(20);
 
-  //Radio State
-  const [radioValue, setRadioValue] = useState(1);
+  // //Radio State
+  // const [radioValue, setRadioValue] = useState(1);
 
   //Websocket connection State
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-  const [massageAction, setMassageAction] = useState('cancellationDaily');
+  const [massageAction, setMassageAction] = useState('averageKeysDaily');
 
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
@@ -69,17 +69,17 @@ const CancellationBar = () => {
     setStatus('process');
     if(checked){
       setRange(20);
-      setMassageAction('cancellationDaily');
+      setMassageAction('averageKeysDaily');
     } else {
       setRange(40);
-      setMassageAction('cancellationMonthly');
+      setMassageAction('averageKeysMonthly');
     }
   };
 
-  const onChangeRadio = (e) => {
-    console.log('radio checked', e.target.value);
-    setRadioValue(e.target.value);
-  };
+  // const onChangeRadio = (e) => {
+  //   console.log('radio checked', e.target.value);
+  //   setRadioValue(e.target.value);
+  // };
 
   const onChangeRangePicker = (dates) => {
     setStartDate(dates[0].startOf('month').format('YYYY-MM-DD') + ' T00:00:00');
@@ -98,9 +98,9 @@ const CancellationBar = () => {
   // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
-      if(massageAction === 'cancellationDaily'){
+      if(massageAction === 'averageKeysDaily'){
 
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
+        const data = JSON.parse(lastMessage?.data).month
 
         if(data.length === 0) {
           setChartData([])
@@ -110,7 +110,7 @@ const CancellationBar = () => {
       }
       else {
       
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).monthsRates : JSON.parse(lastMessage?.data).monthsCancelled
+        const data = JSON.parse(lastMessage?.data).month
 
         if(data.length === 0) {
           setChartData([])
@@ -137,19 +137,19 @@ const CancellationBar = () => {
             </Breadcrumb.Item>
 
             <Breadcrumb.Item>
-            <Link to={'/cancellation'}>Cancellation</Link>
+            <Link to={'/averageKey'}>Average Key</Link>
             </Breadcrumb.Item>
 
             <Breadcrumb.Item>
-            <Link to={'/cancellationBar'}>BarChart</Link>
+            <Link to={'/averageKeyBar'}>BarChart</Link>
             </Breadcrumb.Item>
 
       </Breadcrumb>
 
-      <p>Cancellation BarChart</p>
+      <p>Average Key Bar Chart</p>
       
       {/* Chart */}
-      <BarChart data = {chartData} series = {[{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]}/>
+      <BarChart data = {chartData} series = {[{ type: 'bar' }]}/>
 
       {/* Date Picker */}
     <RangePicker
@@ -168,11 +168,11 @@ const CancellationBar = () => {
     <button onClick={onClickSubmit}>Send Message</button> 
     <button onClick={onClickVisualize}>Visualize</button> 
 
-    {/* Radio */}
+    {/* Radio
     <Radio.Group onChange={onChangeRadio} value={radioValue}>
         <Radio value={1}>Rates</Radio>
         <Radio value={2}>Numbers</Radio>
-    </Radio.Group>
+    </Radio.Group> */}
 
 
     {/* Steps */}
@@ -203,4 +203,4 @@ const CancellationBar = () => {
   )
 }
 
-export default CancellationBar
+export default AverageKeyBar
