@@ -9,6 +9,10 @@ import Home from './pages/Home';
 import Bar from './pages/Charts/Bar';
 import Pie from './pages/Charts/Pie';
 
+// Average Delay
+import AverageDelayBar from './pages/AverageDelay/AverageDelayBar';
+import AverageDelayHeatMap from './pages/AverageDelay/AverageDelayHeatMap';
+
 // Average Key
 import AverageKeyBar from './pages/AverageKey/AverageKeyBar';
 import AverageKeyHeatMap from './pages/AverageKey/AverageKeyHeatMap';
@@ -20,6 +24,10 @@ import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
 //Cancellation
 import CancellationBar from './pages/Cancellation/CancellationBar';
 import CancellationHeatMap from './pages/Cancellation/CancellationHeatMap';
+
+//Cancellation
+import InAdvanceBar from './pages/InAdvance/InAdvanceBar';
+import InAdvanceHeatMap from './pages/InAdvance/InAdvanceHeatMap';
 
 function App() {
   return (
@@ -36,6 +44,10 @@ function App() {
               <Route path="/piechart" element={<Pie />}/>
 
               {/* Average Key */}
+              <Route path="/AverageDelayBar" element={<AverageDelayBar />}/>
+              <Route path="/AverageDelayHeatMap" element={<AverageDelayHeatMap />}/>
+
+              {/* Average Key */}
               <Route path="/AverageKeyBar" element={<AverageKeyBar />}/>
               <Route path="/AverageKeyHeatMap" element={<AverageKeyHeatMap />}/>
 
@@ -46,6 +58,10 @@ function App() {
               {/* Cancellation */}
               <Route path="/cancellationBar" element={<CancellationBar />}/>
               <Route path="/cancellationHeatMap" element={<CancellationHeatMap />}/>
+
+              {/* In Advance */}
+              <Route path="/inAdvanceBar" element={<InAdvanceBar />}/>
+              <Route path="/inAdvanceHeatMap" element={<InAdvanceHeatMap />}/>
         
               {/* 默认路由 */}
               <Route path="*" element={<Navigate to="/" replace />} />

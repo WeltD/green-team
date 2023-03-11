@@ -19,6 +19,10 @@ const items = [
     getItem('PieChart', 'piechart'),
     getItem('Submenu', 'sub1-2', null, [getItem('Option 5', '5'), getItem('Option 6', '6')]),
   ]),
+  getItem('Average Delay', 'average delay', <AppstoreOutlined />, [
+    getItem('BarChart', 'averageDelayBar'),
+    getItem('Heat Map', 'averageDelayHeatMap'),
+  ]),
   getItem('Average Key', 'average key', <AppstoreOutlined />, [
     getItem('BarChart', 'averageKeyBar'),
     getItem('Heat Map', 'averageKeyHeatMap'),
@@ -30,6 +34,10 @@ const items = [
   getItem('Cancellation', 'cancellation', <AppstoreOutlined />,  [
     getItem('BarChart', 'cancellationBar'),
     getItem('Heat Map', 'cancellationHeatMap'),
+  ]),
+  getItem('InAdvance', 'in advance', <AppstoreOutlined />,  [
+    getItem('BarChart', 'inAdvanceBar'),
+    getItem('Heat Map', 'inAdvanceHeatMap'),
   ]),
 ];
 
