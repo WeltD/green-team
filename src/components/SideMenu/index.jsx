@@ -22,7 +22,10 @@ const items = [
   getItem('Booking', 'booking', <AppstoreOutlined />, [
     getItem('BarChart', 'barchart'),
   ]),
-  getItem('Cancellation', 'cancellation', <AppstoreOutlined />),
+  getItem('Cancellation', 'cancellation', <AppstoreOutlined />,  [
+    getItem('BarChart', 'cancellationBar'),
+    getItem('Heat Map', 'cancellationHeatMap'),
+  ]),
 ];
 
 const SideMenu = () => {

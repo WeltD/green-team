@@ -1,32 +1,27 @@
 import React, { useState, useEffect } from 'react'
-import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
+import { Breadcrumb, DatePicker, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
-import BarChart from '../../components/Charts/BarChart'
-
+import HeatMap from '../../../components/Charts/Heatmap'
 import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
+const dayjs = require('dayjs')
 
-const Cancellation = () => {
+const CancellationHeatMap = () => {
   // Websocket connection
   const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
 
   // State variables
   //Range/Date picker State
-  const [dates, setDates] = useState(null);
-  const [value, setValue] = useState(null);
-  const [range, setRange] = useState(20);
+  const [date, setDate] = useState('2020-01');
 
   //Radio State
   const [radioValue, setRadioValue] = useState(1);
 
-  //Websocket connection State
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
-  const [massageAction, setMassageAction] = useState('cancellationDaily');
-
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
+  const [chartMax, setChartMax] = useState(1);
+
 
   //Steps State
   const [current, setCurrent] = useState(0);
@@ -39,85 +34,47 @@ const Cancellation = () => {
     }
   }, [lastMessage]);
   
-
-  const disabledDate = (current) => {
-    if (!dates) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], 'days') > range;
-    const tooEarly = dates[1] && dates[1].diff(current, 'days') > range;
-    return !!tooEarly || !!tooLate;
-  };
-
-  
-  const onOpenChange = (open) => {
-    setCurrent(0);
-    setStatus('process');
-    if (open) {
-      setDates([null, null]);
-    } else {
-      setDates(null);
-    }
-  };
-
-  const onChangeSwitch = (checked) => {
-    setValue(null);
-    setChartData([]);
-    setCurrent(0);
-    setStartDate(null);
-    setEndDate(null);
-    setStatus('process');
-    if(checked){
-      setRange(20);
-      setMassageAction('cancellationDaily');
-    } else {
-      setRange(40);
-      setMassageAction('cancellationMonthly');
-    }
-  };
-
   const onChangeRadio = (e) => {
     console.log('radio checked', e.target.value);
     setRadioValue(e.target.value);
   };
 
-  const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf('month').format('YYYY-MM-DD') + ' T00:00:00');
-    setEndDate(dates[1].endOf('month').format('YYYY-MM-DD') + ' T23:59:59');
-    setValue(dates);
+  const onChangeDatePicker = (date, dateString) => {
+    setCurrent(0);
+    setStatus('process');
+    setDate(dateString)
+    // console.log(date, dateString);
   }
 
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
-    const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
+    const startDate = dayjs(date).startOf('month').format('YYYY-MM-DD') + ' T00:00:00';
+    const endDate = dayjs(date).endOf('month').format('YYYY-MM-DD') + ' T23:59:59';
+    console.log(startDate, endDate);
+    const data = { "action": 'cancellationDaily', "startDate": startDate, "endDate": endDate }
     setCurrent(1);
+    setStatus('process');
     sendMessage(JSON.stringify(data))
   }
 
   // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
-      if(massageAction === 'cancellationDaily'){
 
         const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
-
-        if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
+        
+        if (radioValue === 1) {
+          setChartMax(1)
+        } else if (radioValue === 2) {
+          setChartMax(100)
         }
-      }
-      else {
-      
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).monthsRates : JSON.parse(lastMessage?.data).monthsCancelled
-
+        
         if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
+            setChartData([])
+          } else {
+            setChartData(data)
         }
-
-      }
+     
     } catch (error) {
       setStatus('error')
     }
@@ -139,23 +96,19 @@ const Cancellation = () => {
             <Link to={'/cancellation'}>Cancellation</Link>
             </Breadcrumb.Item>
 
+            <Breadcrumb.Item>
+            <Link to={'/cancellationHeatMap'}>HeatMap</Link>
+            </Breadcrumb.Item>
+
       </Breadcrumb>
 
+      <p>Cancellation HeatMap</p>
+      
       {/* Chart */}
-      <BarChart data = {chartData}/>
+      <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1,2,3]}/>
 
       {/* Date Picker */}
-    <RangePicker
-      value={dates || value}
-      disabledDate={disabledDate}
-      onCalendarChange={(val) => setDates(val)}
-      onChange={onChangeRangePicker}
-      onOpenChange={onOpenChange}
-      picker="month"
-    />
-
-    {/* Switch for daily/monthly */}
-    <Switch defaultChecked onChange={onChangeSwitch} />
+      <DatePicker onChange={onChangeDatePicker} picker="month" />
 
     {/* Buttons */}
     <button onClick={onClickSubmit}>Send Message</button> 
@@ -185,8 +138,7 @@ const Cancellation = () => {
       ]}
     />
 
-    <p>startDate message: {startDate}</p>
-    <p>endDate message: {endDate}</p>
+    <p>startDate message: {date}</p>
     <p>Last message: {lastMessage?.data}</p>
     <p>type: {typeof(lastMessage?.data)}</p>
     <p>Last message id: </p>
@@ -196,4 +148,4 @@ const Cancellation = () => {
   )
 }
 
-export default Cancellation
+export default CancellationHeatMap

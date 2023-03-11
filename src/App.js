@@ -8,7 +8,10 @@ import Layout from './pages/Layout';
 import Home from './pages/Home';
 import Bar from './pages/Charts/Bar';
 import Pie from './pages/Charts/Pie';
-import Cancellation from './pages/Cancellation';
+
+//Cancellation
+import CancellationBar from './pages/Cancellation/CancellationBar';
+import CancellationHeatMap from './pages/Cancellation/CancellationHeatMap';
 
 function App() {
   return (
@@ -23,7 +26,10 @@ function App() {
               <Route path="/" element={<Home />}/>
               <Route path="/barchart" element={<Bar />}/>
               <Route path="/piechart" element={<Pie />}/>
-              <Route path="/cancellation" element={<Cancellation />}/>
+
+              {/* Cancellation */}
+              <Route path="/cancellationBar" element={<CancellationBar />}/>
+              <Route path="/cancellationHeatMap" element={<CancellationHeatMap />}/>
         
               {/* 默认路由 */}
               <Route path="*" element={<Navigate to="/" replace />} />

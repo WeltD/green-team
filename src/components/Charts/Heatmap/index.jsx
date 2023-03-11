@@ -2,38 +2,45 @@ import React from 'react'
 import ReactEcharts from "echarts-for-react";
 
 const HeatMap = (props) => {
-   const option = {
-        title: {
-          top: 30,
-          left: 'center',
-          text: 'Daily Step Count'
+  const option = {
+  
+    dataset: {
+      source:props.data
+    },
+    
+     calendar: [{
+      cellSize: ['auto', 'auto'],
+         orient:'vertical',
+         itemStyle: {
+          borderWidth: 0.5
+       },
+      yearLabel: { show: false },
+      
+        range:props.range,
+     }],
+     
+     tooltip:{},
+
+     visualMap: {
+      min: 0,
+      max: props.max,
+  
+    },
+
+    // Declare several HeatMap, each will be mapped
+    // to a column of dataset.source by default.
+series: [
+      {
+        type: 'heatmap',
+        coordinateSystem:'calendar',
+        encode: {
+          tooltip:props.tooltip
         },
-        tooltip: {},
-        visualMap: {
-          min: 0,
-          max: 100,
-          type: 'piecewise',
-          orient: 'horizontal',
-          left: 'center',
-          top: 65
-        },
-        calendar: {
-          top: 120,
-          left: 30,
-          right: 30,
-          cellSize: ['auto', 13],
-          range: props.range,
-          itemStyle: {
-            borderWidth: 0.5
-          },
-          yearLabel: { show: false }
-        },
-        series: {
-          type: 'heatmap',
-          coordinateSystem: 'calendar',
-          data: props.data
-        }
-      };
+      }
+    ]
+  
+  };
+
 
   return (
     <div>
