@@ -29,7 +29,7 @@ const StayBar = () => {
 
     //Chart State
     const [chartData, setChartData] = useState([]);
-    const [chartSeries, setChartSeries] = useState([{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]);
+    const [chartSeries, setChartSeries] = useState([{ type: 'bar' }]);
     
     //StatsBar State
     const [statsBarData, setStatsBarData] = useState([[],[]]);
@@ -108,10 +108,10 @@ const StayBar = () => {
             const chartData = () => {
                 switch (radioValue){
                   case 1:
-                    setChartSeries([{ type: 'bar' }, { type: 'bar' }])
+                    setChartSeries([{ type: 'bar' }])
                     return JSON.parse(lastMessage?.data).stayDistributionMade
                   case 2:
-                    setChartSeries([{ type: 'bar' }, { type: 'bar' }])
+                    setChartSeries([{ type: 'bar' }])
                     return JSON.parse(lastMessage?.data).stayDistributionStart
                   case 3:
                     setChartSeries([{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }])
