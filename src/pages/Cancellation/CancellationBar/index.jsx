@@ -40,6 +40,48 @@ const CancellationBar = () => {
   useEffect(() => {
     if (lastMessage) {
       setCurrent(2);
+      try {
+        const chartData = () => {
+          switch (radioValue){
+            case 1:
+              if(massageAction === 'cancellationDaily'){
+                return JSON.parse(lastMessage?.data).datesRates
+              } else {
+                return JSON.parse(lastMessage?.data).monthsRates
+              }
+            case 2:
+              if(massageAction === 'cancellationDaily'){
+                return JSON.parse(lastMessage?.data).datesCancelled
+              } else {
+                return JSON.parse(lastMessage?.data).monthsCancelled
+              }
+              default:
+                return []
+          }
+        }
+  
+        const statsBarData = () => {
+          switch (radioValue){
+            case 1:
+              return JSON.parse(lastMessage?.data).totalRates
+            case 2:
+              return JSON.parse(lastMessage?.data).totalCancelled
+            default:
+              return []
+          }
+        }
+  
+        if(chartData().length === 0) {
+          setChartData([])
+          setStatsBarData([[],[]])
+        } else {
+          setChartData(chartData())
+          setStatsBarData(statsBarData())
+        }
+        
+      } catch (error) {
+        setStatus('error')
+      }
     }
   }, [lastMessage]);
   
@@ -84,27 +126,9 @@ const CancellationBar = () => {
   const onChangeRadio = (e) => {
     console.log('radio checked', e.target.value);
     setRadioValue(e.target.value);
-  };
-
-  const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf('month').format('YYYY-MM-DD') + ' T00:00:00');
-    setEndDate(dates[1].endOf('month').format('YYYY-MM-DD') + ' T23:59:59');
-    setValue(dates);
-  }
-
-  // Compile the date and action into a massage and send it to the backend
-  const onClickSubmit = () => {
-    const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
-    setCurrent(1);
-     setStatus('process');
-    sendMessage(JSON.stringify(data))
-  }
-
-  // Parse the data from the last message and set the chart data
-  const onClickVisualize = () => {
     try {
       const chartData = () => {
-        switch (radioValue){
+        switch (e.target.value){
           case 1:
             if(massageAction === 'cancellationDaily'){
               return JSON.parse(lastMessage?.data).datesRates
@@ -123,7 +147,7 @@ const CancellationBar = () => {
       }
 
       const statsBarData = () => {
-        switch (radioValue){
+        switch (e.target.value){
           case 1:
             return JSON.parse(lastMessage?.data).totalRates
           case 2:
@@ -142,9 +166,26 @@ const CancellationBar = () => {
       }
       
     } catch (error) {
-      setStatus('error')
+      if(current === 2){
+        setStatus('error')
+      }
     }
+  };
+
+  const onChangeRangePicker = (dates) => {
+    setStartDate(dates[0].startOf('month').format('YYYY-MM-DD') + ' T00:00:00');
+    setEndDate(dates[1].endOf('month').format('YYYY-MM-DD') + ' T23:59:59');
+    setValue(dates);
   }
+
+  // Compile the date and action into a massage and send it to the backend
+  const onClickSubmit = () => {
+    const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
+    setCurrent(1);
+     setStatus('process');
+    sendMessage(JSON.stringify(data))
+  }
+ 
 
   return (
     <div>
@@ -190,8 +231,7 @@ const CancellationBar = () => {
       <Switch defaultChecked onChange={onChangeSwitch} />
 
       {/* Buttons */}
-      <button onClick={onClickSubmit}>Send Message</button> 
-      <button onClick={onClickVisualize}>Visualize</button> 
+      <button onClick={onClickSubmit}>Send Message</button>  
 
       {/* Radio */}
       <Radio.Group onChange={onChangeRadio} value={radioValue}>
