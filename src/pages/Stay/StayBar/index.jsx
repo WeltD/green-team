@@ -29,7 +29,7 @@ const StayBar = () => {
 
     //Chart State
     const [chartData, setChartData] = useState([]);
-    const [chartSeries, setChartSeries] = useState([{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]);
+    const [chartSeries, setChartSeries] = useState([{ type: 'bar' }]);
     
     //StatsBar State
     const [statsBarData, setStatsBarData] = useState([[],[]]);
