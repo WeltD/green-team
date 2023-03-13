@@ -29,6 +29,7 @@ const CancellationBar = () => {
   //Chart State
   const [chartData, setChartData] = useState([]);
 
+
   //StatsBar State
   const [statsBarData, setStatsBarData] = useState([[],[]]);
 

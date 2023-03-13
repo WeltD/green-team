@@ -36,35 +36,7 @@ const CancellationHeatMap = () => {
   useEffect(() => {
     if (lastMessage) {
       setCurrent(2);
-    }
-  }, [lastMessage]);
-  
-  const onChangeRadio = (e) => {
-    console.log('radio checked', e.target.value);
-    setRadioValue(e.target.value);
-  };
-
-  const onChangeDatePicker = (date, dateString) => {
-    setCurrent(0);
-    setStatus('process');
-    setDate(dateString)
-    // console.log(date, dateString);
-  }
-
-  // Compile the date and action into a massage and send it to the backend
-  const onClickSubmit = () => {
-    const startDate = dayjs(date).startOf('month').format('YYYY-MM-DD') + ' T00:00:00';
-    const endDate = dayjs(date).endOf('month').format('YYYY-MM-DD') + ' T23:59:59';
-    console.log(startDate, endDate);
-    const data = { "action": 'cancellationDaily', "startDate": startDate, "endDate": endDate }
-    setCurrent(1);
-    setStatus('process');
-    sendMessage(JSON.stringify(data))
-  }
-
-  // Parse the data from the last message and set the chart data
-  const onClickVisualize = () => {
-    try {
+      try {
 
         const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
         const statsBarData = radioValue === 1 ? JSON.parse(lastMessage?.data).totalRates : JSON.parse(lastMessage?.data).totalCancelled
@@ -85,6 +57,53 @@ const CancellationHeatMap = () => {
     } catch (error) {
       setStatus('error')
     }
+    }
+  }, [lastMessage]);
+  
+  const onChangeRadio = (e) => {
+    console.log('radio checked', e.target.value);
+    setRadioValue(e.target.value);
+    try {
+
+      const data = e.target.value === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
+      const statsBarData = e.target.value === 1 ? JSON.parse(lastMessage?.data).totalRates : JSON.parse(lastMessage?.data).totalCancelled
+      if (e.target.value === 1) {
+        setChartMax(1)
+      } else if (e.target.value === 2) {
+        setChartMax(100)
+      }
+      
+      if(data.length === 0) {
+          setChartData([])
+          setStatsBarData([[],[]])
+        } else {
+          setChartData(data)
+          setStatsBarData(statsBarData)
+      }
+   
+  } catch (error) {
+    if(current === 2){
+      setStatus('error')
+    }
+  }
+  };
+
+  const onChangeDatePicker = (date, dateString) => {
+    setCurrent(0);
+    setStatus('process');
+    setDate(dateString)
+    // console.log(date, dateString);
+  }
+
+  // Compile the date and action into a massage and send it to the backend
+  const onClickSubmit = () => {
+    const startDate = dayjs(date).startOf('month').format('YYYY-MM-DD') + ' T00:00:00';
+    const endDate = dayjs(date).endOf('month').format('YYYY-MM-DD') + ' T23:59:59';
+    console.log(startDate, endDate);
+    const data = { "action": 'cancellationDaily', "startDate": startDate, "endDate": endDate }
+    setCurrent(1);
+    setStatus('process');
+    sendMessage(JSON.stringify(data))
   }
 
   return (
@@ -122,7 +141,6 @@ const CancellationHeatMap = () => {
 
     {/* Buttons */}
     <button onClick={onClickSubmit}>Send Message</button> 
-    <button onClick={onClickVisualize}>Visualize</button> 
 
     {/* Radio */}
     <Radio.Group onChange={onChangeRadio} value={radioValue}>
