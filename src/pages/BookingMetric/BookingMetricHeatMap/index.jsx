@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Breadcrumb, DatePicker, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
 import HeatMap from '../../../components/Charts/Heatmap'
+import StatsBar from '../../../components/StatsBar'
+
 import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
@@ -21,6 +23,9 @@ const BookingMetricHeatMap = () => {
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
   const [chartMax, setChartMax] = useState(1);
+
+  //StatsBar State
+  const [statsBarData, setStatsBarData] = useState([[],[]]);
 
 
   //Steps State
@@ -62,6 +67,7 @@ const BookingMetricHeatMap = () => {
     try {
 
         const data = JSON.parse(lastMessage?.data).dates
+        const stats = JSON.parse(lastMessage?.data).total
         
         // if (radioValue === 1) {
         //   setChartMax(1)
@@ -72,8 +78,10 @@ const BookingMetricHeatMap = () => {
         
         if(data.length === 0) {
             setChartData([])
+            setStatsBarData([[],[]])
           } else {
             setChartData(data)
+            setStatsBarData(stats)
         }
      
     } catch (error) {
@@ -107,6 +115,9 @@ const BookingMetricHeatMap = () => {
       
       {/* Chart */}
       <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1,2,3]}/>
+
+      {/* StatsBar */}
+      <StatsBar data = {statsBarData}/>
 
       {/* Date Picker */}
       <DatePicker onChange={onChangeDatePicker} picker="month" />

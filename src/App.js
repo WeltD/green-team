@@ -25,9 +25,12 @@ import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
 import CancellationBar from './pages/Cancellation/CancellationBar';
 import CancellationHeatMap from './pages/Cancellation/CancellationHeatMap';
 
-//Cancellation
+//InAdvance
 import InAdvanceBar from './pages/InAdvance/InAdvanceBar';
 import InAdvanceHeatMap from './pages/InAdvance/InAdvanceHeatMap';
+
+//Stay
+import StayBar from './pages/Stay/StayBar';
 
 function App() {
   return (
@@ -62,6 +65,9 @@ function App() {
               {/* In Advance */}
               <Route path="/inAdvanceBar" element={<InAdvanceBar />}/>
               <Route path="/inAdvanceHeatMap" element={<InAdvanceHeatMap />}/>
+
+              {/* Stay */}
+              <Route path="/stayBar" element={<StayBar />}/>
         
               {/* 默认路由 */}
               <Route path="*" element={<Navigate to="/" replace />} />

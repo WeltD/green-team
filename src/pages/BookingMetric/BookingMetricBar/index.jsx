@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
 import BarChart from '../../../components/Charts/BarChart'
+import StatsBar from '../../../components/StatsBar'
 
 import useWebSocket from 'react-use-websocket'
 
@@ -15,7 +16,7 @@ const BookingMetricBar = () => {
   //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
-  const [range, setRange] = useState(20);
+  const [range, setRange] = useState(1);
 
 //   //Radio State
 //   const [radioValue, setRadioValue] = useState(1);
@@ -27,6 +28,9 @@ const BookingMetricBar = () => {
 
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
+
+  //StatsBar State
+  const [statsBarData, setStatsBarData] = useState([[],[]]);
 
   //Steps State
   const [current, setCurrent] = useState(0);
@@ -68,10 +72,10 @@ const BookingMetricBar = () => {
     setEndDate(null);
     setStatus('process');
     if(checked){
-      setRange(20);
+      setRange(1);
       setMassageAction('bookingMetricsDaily');
     } else {
-      setRange(40);
+      setRange(32);
       setMassageAction('bookingMetricsMonthly');
     }
   };
@@ -101,21 +105,27 @@ const BookingMetricBar = () => {
       if(massageAction === 'bookingMetricsDaily'){
 
         const data = JSON.parse(lastMessage?.data).dates
+        const data2 = JSON.parse(lastMessage?.data).total
 
         if(data.length === 0) {
           setChartData([])
+          setStatsBarData([[],[]])
         } else {
           setChartData(data)
+          setStatsBarData(data2)
         }
       }
       else {
       
         const data = JSON.parse(lastMessage?.data).months
+        const data2 = JSON.parse(lastMessage?.data).total
 
         if(data.length === 0) {
           setChartData([])
+          setStatsBarData([[],[]])
         } else {
           setChartData(data)
+          setStatsBarData(data2)
         }
 
       }
@@ -150,6 +160,9 @@ const BookingMetricBar = () => {
       
       {/* Chart */}
       <BarChart data = {chartData} series = {[{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]}/>
+
+      {/* StatsBar */}
+      <StatsBar data = {statsBarData} />
 
       {/* Date Picker */}
     <RangePicker

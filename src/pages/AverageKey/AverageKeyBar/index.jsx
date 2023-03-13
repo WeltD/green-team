@@ -15,7 +15,7 @@ const AverageKeyBar = () => {
   //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
-  const [range, setRange] = useState(20);
+  const [range, setRange] = useState(1);
 
   // //Radio State
   // const [radioValue, setRadioValue] = useState(1);
@@ -68,10 +68,10 @@ const AverageKeyBar = () => {
     setEndDate(null);
     setStatus('process');
     if(checked){
-      setRange(20);
+      setRange(1);
       setMassageAction('averageKeysDaily');
     } else {
-      setRange(40);
+      setRange(32);
       setMassageAction('averageKeysMonthly');
     }
   };

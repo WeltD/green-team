@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Breadcrumb, DatePicker, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
 import HeatMap from '../../../components/Charts/Heatmap'
+import StatsBar from '../../../components/StatsBar'
+
 import useWebSocket from 'react-use-websocket'
 
 const { RangePicker } = DatePicker;
@@ -21,6 +23,9 @@ const CancellationHeatMap = () => {
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
   const [chartMax, setChartMax] = useState(1);
+
+  //StatsBar State
+  const [statsBarData, setStatsBarData] = useState([[],[]]);
 
 
   //Steps State
@@ -62,7 +67,7 @@ const CancellationHeatMap = () => {
     try {
 
         const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
-        
+        const statsBarData = radioValue === 1 ? JSON.parse(lastMessage?.data).totalRates : JSON.parse(lastMessage?.data).totalCancelled
         if (radioValue === 1) {
           setChartMax(1)
         } else if (radioValue === 2) {
@@ -71,8 +76,10 @@ const CancellationHeatMap = () => {
         
         if(data.length === 0) {
             setChartData([])
+            setStatsBarData([[],[]])
           } else {
             setChartData(data)
+            setStatsBarData(statsBarData)
         }
      
     } catch (error) {
@@ -106,6 +113,9 @@ const CancellationHeatMap = () => {
       
       {/* Chart */}
       <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1,2,3]}/>
+
+      {/* StatsBar */}
+      <StatsBar data = {statsBarData}/>
 
       {/* Date Picker */}
       <DatePicker onChange={onChangeDatePicker} picker="month" />

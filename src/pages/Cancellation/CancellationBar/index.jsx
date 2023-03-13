@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
 import BarChart from '../../../components/Charts/BarChart'
+import StatsBar from '../../../components/StatsBar'
 
 import useWebSocket from 'react-use-websocket'
 
@@ -15,7 +16,7 @@ const CancellationBar = () => {
   //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
-  const [range, setRange] = useState(20);
+  const [range, setRange] = useState(1);
 
   //Radio State
   const [radioValue, setRadioValue] = useState(1);
@@ -26,7 +27,10 @@ const CancellationBar = () => {
   const [massageAction, setMassageAction] = useState('cancellationDaily');
 
   //Chart State
-  const [chartData, setChartData] = useState([[],[]]);
+  const [chartData, setChartData] = useState([]);
+
+  //StatsBar State
+  const [statsBarData, setStatsBarData] = useState([[],[]]);
 
   //Steps State
   const [current, setCurrent] = useState(0);
@@ -63,15 +67,16 @@ const CancellationBar = () => {
   const onChangeSwitch = (checked) => {
     setValue(null);
     setChartData([]);
+    setStatsBarData([[],[]]);
     setCurrent(0);
     setStartDate(null);
     setEndDate(null);
     setStatus('process');
     if(checked){
-      setRange(20);
+      setRange(1);
       setMassageAction('cancellationDaily');
     } else {
-      setRange(40);
+      setRange(32);
       setMassageAction('cancellationMonthly');
     }
   };
@@ -98,27 +103,44 @@ const CancellationBar = () => {
   // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
-      if(massageAction === 'cancellationDaily'){
-
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).datesCancelled
-
-        if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
+      const chartData = () => {
+        switch (radioValue){
+          case 1:
+            if(massageAction === 'cancellationDaily'){
+              return JSON.parse(lastMessage?.data).datesRates
+            } else {
+              return JSON.parse(lastMessage?.data).monthsRates
+            }
+          case 2:
+            if(massageAction === 'cancellationDaily'){
+              return JSON.parse(lastMessage?.data).datesCancelled
+            } else {
+              return JSON.parse(lastMessage?.data).monthsCancelled
+            }
+            default:
+              return []
         }
       }
-      else {
+
+      const statsBarData = () => {
+        switch (radioValue){
+          case 1:
+            return JSON.parse(lastMessage?.data).totalRates
+          case 2:
+            return JSON.parse(lastMessage?.data).totalCancelled
+          default:
+            return []
+        }
+      }
+
+      if(chartData().length === 0) {
+        setChartData([])
+        setStatsBarData([[],[]])
+      } else {
+        setChartData(chartData())
+        setStatsBarData(statsBarData())
+      }
       
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).monthsRates : JSON.parse(lastMessage?.data).monthsCancelled
-
-        if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
-        }
-
-      }
     } catch (error) {
       setStatus('error')
     }
@@ -151,54 +173,54 @@ const CancellationBar = () => {
       {/* Chart */}
       <BarChart data = {chartData} series = {[{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]}/>
 
+       {/* Stats Bar */}
+       <StatsBar data = {statsBarData}/>
+
       {/* Date Picker */}
-    <RangePicker
-      value={dates || value}
-      disabledDate={disabledDate}
-      onCalendarChange={(val) => setDates(val)}
-      onChange={onChangeRangePicker}
-      onOpenChange={onOpenChange}
-      picker="month"
-    />
+      <RangePicker
+        value={dates || value}
+        disabledDate={disabledDate}
+        onCalendarChange={(val) => setDates(val)}
+        onChange={onChangeRangePicker}
+        onOpenChange={onOpenChange}
+        picker="month"
+      />
 
-    {/* Switch for daily/monthly */}
-    <Switch defaultChecked onChange={onChangeSwitch} />
+      {/* Switch for daily/monthly */}
+      <Switch defaultChecked onChange={onChangeSwitch} />
 
-    {/* Buttons */}
-    <button onClick={onClickSubmit}>Send Message</button> 
-    <button onClick={onClickVisualize}>Visualize</button> 
+      {/* Buttons */}
+      <button onClick={onClickSubmit}>Send Message</button> 
+      <button onClick={onClickVisualize}>Visualize</button> 
 
-    {/* Radio */}
-    <Radio.Group onChange={onChangeRadio} value={radioValue}>
-        <Radio value={1}>Rates</Radio>
-        <Radio value={2}>Numbers</Radio>
-    </Radio.Group>
+      {/* Radio */}
+      <Radio.Group onChange={onChangeRadio} value={radioValue}>
+          <Radio value={1}>Rates</Radio>
+          <Radio value={2}>Numbers</Radio>
+      </Radio.Group>
 
 
-    {/* Steps */}
-    <Steps
-      current={current}
-      status= {status}
-      items={[
-        {
-          title: 'Select date',  
-        },
-        {
-          title: 'Analyze data',  
-        },
-        {
-          title: 'Visualize data',          
-        },
-      ]}
-    />
+      {/* Steps */}
+      <Steps
+        current={current}
+        status= {status}
+        items={[
+          {
+            title: 'Select date',  
+          },
+          {
+            title: 'Analyze data',  
+          },
+          {
+            title: 'Visualize data',          
+          },
+        ]}
+      />
 
-    <p>startDate message: {startDate}</p>
-    <p>endDate message: {endDate}</p>
-    <p>Last message: {lastMessage?.data}</p>
-    <p>type: {typeof(lastMessage?.data)}</p>
-    <p>Last message id: </p>
-
-      
+      <p>startDate message: {startDate}</p>
+      <p>endDate message: {endDate}</p>
+      <p>Last message: {lastMessage?.data}</p>
+      <p>type: {typeof(lastMessage?.data)}</p>
     </div>
   )
 }

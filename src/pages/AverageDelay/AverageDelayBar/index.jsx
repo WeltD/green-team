@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
 import { Link } from 'react-router-dom'
 import BarChart from '../../../components/Charts/BarChart'
+import StatsBar from '../../../components/StatsBar'
 
 import useWebSocket from 'react-use-websocket'
 
@@ -15,7 +16,7 @@ const AverageDelayBar = () => {
   //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
-  const [range, setRange] = useState(20);
+  const [range, setRange] = useState(1);
 
   //Radio State
   const [radioValue, setRadioValue] = useState(1);
@@ -27,6 +28,9 @@ const AverageDelayBar = () => {
 
   //Chart State
   const [chartData, setChartData] = useState([[],[]]);
+
+    //StatsBar State
+    const [statsBarData, setStatsBarData] = useState([[],[]]);
 
   //Steps State
   const [current, setCurrent] = useState(0);
@@ -63,15 +67,16 @@ const AverageDelayBar = () => {
   const onChangeSwitch = (checked) => {
     setValue(null);
     setChartData([]);
+    setStatsBarData([[],[]]);
     setCurrent(0);
     setStartDate(null);
     setEndDate(null);
     setStatus('process');
     if(checked){
-      setRange(20);
+      setRange(1);
       setMassageAction('averageDelayDaily');
     } else {
-      setRange(40);
+      setRange(32);
       setMassageAction('averageDelayMonthly');
     }
   };
@@ -98,28 +103,44 @@ const AverageDelayBar = () => {
   // Parse the data from the last message and set the chart data
   const onClickVisualize = () => {
     try {
-      if(massageAction === 'averageDelayDaily'){
+        const chartData = () => {
+          switch (radioValue){
+            case 1:
+              if(massageAction === 'averageDelayDaily'){
+                return JSON.parse(lastMessage?.data).inbound.date
+              } else {
+                return JSON.parse(lastMessage?.data).inbound.month
+              }
+            case 2:
+              if(massageAction === 'averageDelayDaily'){
+                return JSON.parse(lastMessage?.data).outbound.date
+              } else {
+                return JSON.parse(lastMessage?.data).outbound.month
+              }
+              default:
+                return []
+          }
+      }
 
-        // const data = JSON.parse(lastMessage?.data).inbound.Date
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).inbound.Date
-
-        if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
+      const statsBarData = () => {
+        switch (radioValue){
+          case 1:
+            return JSON.parse(lastMessage?.data).inbound.total
+          case 2:
+            return JSON.parse(lastMessage?.data).inbound.total
+          default:
+            return []
         }
       }
-      else {
-      
-        const data = radioValue === 1 ? JSON.parse(lastMessage?.data).datesRates : JSON.parse(lastMessage?.data).outbound.Date
 
-        if(data.length === 0) {
-          setChartData([])
-        } else {
-          setChartData(data)
-        }
-
+      if(chartData().length === 0) {
+        setChartData([])
+        setStatsBarData([[],[]])
+      } else {
+        setChartData(chartData())
+        setStatsBarData(statsBarData())
       }
+
     } catch (error) {
       setStatus('error')
     }
@@ -151,6 +172,9 @@ const AverageDelayBar = () => {
       
       {/* Chart */}
       <BarChart data = {chartData} series = {[{ type: 'bar' }]}/>
+
+      {/* Stats Bar */}
+      <StatsBar data = {statsBarData}/>
 
       {/* Date Picker */}
     <RangePicker

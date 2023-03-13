@@ -39,6 +39,10 @@ const items = [
     getItem('BarChart', 'inAdvanceBar'),
     getItem('Heat Map', 'inAdvanceHeatMap'),
   ]),
+  getItem('Stay', 'stay', <AppstoreOutlined />,  [
+    getItem('BarChart', 'stayBar'),
+    getItem('Heat Map', 'stayHeatMap'),
+  ]),
 ];
 
 const SideMenu = () => {
