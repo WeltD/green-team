@@ -31,6 +31,7 @@ import InAdvanceHeatMap from './pages/InAdvance/InAdvanceHeatMap';
 
 //Stay
 import StayBar from './pages/Stay/StayBar';
+import StayHeatMap from './pages/Stay/StayHeatMap';
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
 
               {/* Stay */}
               <Route path="/stayBar" element={<StayBar />}/>
+              <Route path="/stayHeatMap" element={<StayHeatMap />}/>
         
               {/* 默认路由 */}
               <Route path="*" element={<Navigate to="/" replace />} />

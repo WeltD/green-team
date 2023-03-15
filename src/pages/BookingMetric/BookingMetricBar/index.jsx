@@ -1,16 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import { Breadcrumb, DatePicker, Switch, Radio, Steps} from 'antd'
-import { Link } from 'react-router-dom'
-import BarChart from '../../../components/Charts/BarChart'
-import StatsBar from '../../../components/StatsBar'
+import React, { useState, useEffect } from "react";
+import {
+  Breadcrumb,
+  DatePicker,
+  Switch,
+  Steps,
+  Typography,
+  Space,
+  Button,
+} from "antd";
+import { Link } from "react-router-dom";
+import BarChart from "../../../components/Charts/BarChart";
+import StatsBar from "../../../components/StatsBar";
 
-import useWebSocket from 'react-use-websocket'
+import useWebSocket from "react-use-websocket";
 
 const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
 const BookingMetricBar = () => {
   // Websocket connection
-  const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
+  const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
+    "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
+    {
+      reconnectAttempts: 100,
+      reconnectInterval: 3000,
+    }
+  );
 
   // State variables
   //Range/Date picker State
@@ -18,45 +33,62 @@ const BookingMetricBar = () => {
   const [value, setValue] = useState(null);
   const [range, setRange] = useState(1);
 
-//   //Radio State
-//   const [radioValue, setRadioValue] = useState(1);
+  // //Radio State
+  // const [radioValue, setRadioValue] = useState(1);
 
   //Websocket connection State
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-  const [massageAction, setMassageAction] = useState('bookingMetricsDaily');
+  const [massageAction, setMassageAction] = useState("bookingMetricsDaily");
 
   //Chart State
-  const [chartData, setChartData] = useState([[],[]]);
+  const [chartData, setChartData] = useState([[], []]);
 
   //StatsBar State
-  const [statsBarData, setStatsBarData] = useState([[],[]]);
+  const [statsBarData, setStatsBarData] = useState([[], []]);
 
   //Steps State
   const [current, setCurrent] = useState(0);
-  const [status, setStatus] = useState('process');
-
+  const [status, setStatus] = useState("process");
 
   useEffect(() => {
     if (lastMessage) {
+      try {
+        const cData =
+          massageAction === "bookingMetricsDaily"
+            ? JSON.parse(lastMessage?.data).dates
+            : JSON.parse(lastMessage?.data).months;
+
+        const sData = JSON.parse(lastMessage?.data).total;
+
+        if (cData.length === 0) {
+          setChartData([]);
+          setStatsBarData([[], []]);
+        } else {
+          setChartData(cData);
+          setStatsBarData(sData);
+        }
+
+      } catch (error) {
+        setStatus("error");
+      }
+
       setCurrent(2);
     }
   }, [lastMessage]);
-  
 
   const disabledDate = (current) => {
     if (!dates) {
       return false;
     }
-    const tooLate = dates[0] && current.diff(dates[0], 'days') > range;
-    const tooEarly = dates[1] && dates[1].diff(current, 'days') > range;
+    const tooLate = dates[0] && current.diff(dates[0], "days") > range;
+    const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
     return !!tooEarly || !!tooLate;
   };
 
-  
   const onOpenChange = (open) => {
     setCurrent(0);
-    setStatus('process');
+    setStatus("process");
     if (open) {
       setDates([null, null]);
     } else {
@@ -70,150 +102,137 @@ const BookingMetricBar = () => {
     setCurrent(0);
     setStartDate(null);
     setEndDate(null);
-    setStatus('process');
-    if(checked){
+    setStatus("process");
+    if (checked) {
       setRange(1);
-      setMassageAction('bookingMetricsDaily');
+      setMassageAction("bookingMetricsDaily");
     } else {
       setRange(32);
-      setMassageAction('bookingMetricsMonthly');
+      setMassageAction("bookingMetricsMonthly");
     }
   };
 
-//   const onChangeRadio = (e) => {
-//     console.log('radio checked', e.target.value);
-//     setRadioValue(e.target.value);
-//   };
-
   const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf('month').format('YYYY-MM-DD') + ' T00:00:00');
-    setEndDate(dates[1].endOf('month').format('YYYY-MM-DD') + ' T23:59:59');
+    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
+    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
     setValue(dates);
-  }
+  };
 
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
-    const data = { "action": massageAction, "startDate": startDate, "endDate": endDate }
+    const data = {
+      action: massageAction,
+      startDate: startDate,
+      endDate: endDate,
+    };
     setCurrent(1);
-     setStatus('process');
-    sendMessage(JSON.stringify(data))
-  }
-
-  // Parse the data from the last message and set the chart data
-  const onClickVisualize = () => {
-    try {
-      if(massageAction === 'bookingMetricsDaily'){
-
-        const data = JSON.parse(lastMessage?.data).dates
-        const data2 = JSON.parse(lastMessage?.data).total
-
-        if(data.length === 0) {
-          setChartData([])
-          setStatsBarData([[],[]])
-        } else {
-          setChartData(data)
-          setStatsBarData(data2)
-        }
-      }
-      else {
-      
-        const data = JSON.parse(lastMessage?.data).months
-        const data2 = JSON.parse(lastMessage?.data).total
-
-        if(data.length === 0) {
-          setChartData([])
-          setStatsBarData([[],[]])
-        } else {
-          setChartData(data)
-          setStatsBarData(data2)
-        }
-
-      }
-    } catch (error) {
-      setStatus('error')
+    setStatus("process");
+    
+    // Send the massage to the backend
+    if (readyState === 1) {
+      // Connected, send message directly
+      sendMessage(JSON.stringify(data));
+    } else if (readyState === 0 || readyState === 2) {
+      // Not connected, wait for the connection to be established
+      getWebSocket().addEventListener("open", () => {
+        sendMessage(JSON.stringify(data));
+      });
+    } else if (readyState === 3) {
+      // Closed, reconnect and send message
+      getWebSocket().close();
+      getWebSocket().addEventListener("open", () => {
+        sendMessage(JSON.stringify(data));
+      });
     }
-  }
+  };
 
   return (
     <div>
       {/* Breadcrumb */}
       <Breadcrumb
-         style={{
-              margin: '16px 0',
+        style={{
+          margin: "16px 0",
         }}
       >
-            <Breadcrumb.Item>
-              <Link to={'/'}>Home</Link>
-            </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to={"/"}>Home</Link>
+        </Breadcrumb.Item>
 
-            <Breadcrumb.Item>
-            <Link to={'/bookingMetric'}>Booking Metric</Link>
-            </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to={"/bookingMetricBar"}>Booking Metric</Link>
+        </Breadcrumb.Item>
 
-            <Breadcrumb.Item>
-            <Link to={'/bookingMetricBar'}>BarChart</Link>
-            </Breadcrumb.Item>
-
+        <Breadcrumb.Item>
+          <Link to={"/bookingMetricBar"}>BarChart</Link>
+        </Breadcrumb.Item>
       </Breadcrumb>
 
-      <p>Booking Metric Bar Chart</p>
-      
+      <Title level={3}>Booking Metric Data Analyze (BarChart)</Title>
+
       {/* Chart */}
-      <BarChart data = {chartData} series = {[{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]}/>
+      <BarChart
+        data={chartData}
+        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
+      />
 
-      {/* StatsBar */}
-      <StatsBar data = {statsBarData} />
+<Space direction="vertical">
+        {/* Stats Bar */}
+        <StatsBar data={statsBarData} />
 
-      {/* Date Picker */}
-    <RangePicker
-      value={dates || value}
-      disabledDate={disabledDate}
-      onCalendarChange={(val) => setDates(val)}
-      onChange={onChangeRangePicker}
-      onOpenChange={onOpenChange}
-      picker="month"
-    />
+        <Space wrap align="baseline">
+          <Space direction="vertical">
+            {/* Date Picker */}
+            <RangePicker
+              value={dates || value}
+              disabledDate={disabledDate}
+              onCalendarChange={(val) => setDates(val)}
+              onChange={onChangeRangePicker}
+              onOpenChange={onOpenChange}
+              picker="month"
+            />
 
-    {/* Switch for daily/monthly */}
-    <Switch defaultChecked onChange={onChangeSwitch} />
+            {/* Buttons */}
+            <Button onClick={onClickSubmit}>Submit Date</Button>
+          </Space>
 
-    {/* Buttons */}
-    <button onClick={onClickSubmit}>Send Message</button> 
-    <button onClick={onClickVisualize}>Visualize</button> 
+          {/* Switch for daily/monthly */}
+          <Switch
+            checkedChildren="Daily"
+            unCheckedChildren="Monthly"
+            defaultChecked
+            onChange={onChangeSwitch}
+          />
+        </Space>
 
-    {/* Radio
-    <Radio.Group onChange={onChangeRadio} value={radioValue}>
-        <Radio value={1}>Rates</Radio>
-        <Radio value={2}>Numbers</Radio>
-    </Radio.Group> */}
+        {/* Steps */}
+        <Steps
+          current={current}
+          status={status}
+          items={[
+            {
+              title: "Select date",
+              description:
+                "Select and submit the date, you can switch between daily and monthly view.",
+            },
+            {
+              title: "Analyze data",
+              description: "Please wait for data processing.",
+            },
+            {
+              title: "Visualize data",
+              description: "Visualize data in the chart and stats bar above.",
+            },
+          ]}
+        />
+      </Space>
 
-
-    {/* Steps */}
-    <Steps
-      current={current}
-      status= {status}
-      items={[
-        {
-          title: 'Select date',  
-        },
-        {
-          title: 'Analyze data',  
-        },
-        {
-          title: 'Visualize data',          
-        },
-      ]}
-    />
-
-    <p>startDate message: {startDate}</p>
-    <p>endDate message: {endDate}</p>
-    <p>Last message: {lastMessage?.data}</p>
-    <p>type: {typeof(lastMessage?.data)}</p>
-    <p>Last message id: </p>
-
-      
+      {/* <p>startDate message: {startDate}</p>
+      <p>endDate message: {endDate}</p>
+      <p>Last message: {lastMessage?.data}</p>
+      <p>type: {typeof lastMessage?.data}</p>
+      <p>Last message id: </p> */}
     </div>
-  )
-}
+  );
+};
 
-export default BookingMetricBar
+export default BookingMetricBar;

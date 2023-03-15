@@ -1,163 +1,183 @@
-import React, { useState, useEffect } from 'react'
-import { Breadcrumb, DatePicker, Radio, Steps} from 'antd'
-import { Link } from 'react-router-dom'
-import HeatMap from '../../../components/Charts/Heatmap'
-import StatsBar from '../../../components/StatsBar'
+import React, { useState, useEffect } from "react";
+import {
+  Breadcrumb,
+  DatePicker,
+  Steps,
+  Typography,
+  Space,
+  Button,
+  Divider,
+} from "antd";
+import { Link } from "react-router-dom";
+import HeatMap from "../../../components/Charts/Heatmap";
+import StatsBar from "../../../components/StatsBar";
 
-import useWebSocket from 'react-use-websocket'
+import useWebSocket from "react-use-websocket";
 
-const { RangePicker } = DatePicker;
-const dayjs = require('dayjs')
+const dayjs = require("dayjs");
+const { Title } = Typography;
 
 const BookingMetricHeatMap = () => {
   // Websocket connection
-  const { sendMessage, lastMessage } = useWebSocket('wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production');
-
+  const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
+    "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
+    {
+      reconnectAttempts: 100,
+      reconnectInterval: 3000,
+    }
+  );
   // State variables
   //Range/Date picker State
-  const [date, setDate] = useState('2020-01');
+  const [date, setDate] = useState("2020-01");
 
-//   //Radio State
-//   const [radioValue, setRadioValue] = useState(1);
+  //   //Radio State
+  //   const [radioValue, setRadioValue] = useState(1);
 
   //Chart State
-  const [chartData, setChartData] = useState([[],[]]);
-  const [chartMax, setChartMax] = useState(1);
+  const [chartData, setChartData] = useState([[], []]);
+  const [chartMax, setChartMax] = useState(1000);
 
   //StatsBar State
-  const [statsBarData, setStatsBarData] = useState([[],[]]);
-
+  const [statsBarData, setStatsBarData] = useState([[], []]);
 
   //Steps State
   const [current, setCurrent] = useState(0);
-  const [status, setStatus] = useState('process');
-
+  const [status, setStatus] = useState("process");
 
   useEffect(() => {
     if (lastMessage) {
+      try {
+        const data = JSON.parse(lastMessage?.data).dates;
+        const stats = JSON.parse(lastMessage?.data).total;
+        setChartMax(2000);
+
+        if (data.length === 0) {
+          setChartData([]);
+          setStatsBarData([[], []]);
+        } else {
+          setChartData(data);
+          setStatsBarData(stats);
+        }
+      } catch (error) {
+        setStatus("error");
+      }
+
       setCurrent(2);
     }
   }, [lastMessage]);
-  
-//   const onChangeRadio = (e) => {
-//     console.log('radio checked', e.target.value);
-//     setRadioValue(e.target.value);
-//   };
 
   const onChangeDatePicker = (date, dateString) => {
     setCurrent(0);
-    setStatus('process');
-    setDate(dateString)
+    setStatus("process");
+    setDate(dateString);
     // console.log(date, dateString);
-  }
+  };
 
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
-    const startDate = dayjs(date).startOf('month').format('YYYY-MM-DD') + ' T00:00:00';
-    const endDate = dayjs(date).endOf('month').format('YYYY-MM-DD') + ' T23:59:59';
+    const startDate =
+      dayjs(date).startOf("month").format("YYYY-MM-DD") + " T00:00:00";
+    const endDate =
+      dayjs(date).endOf("month").format("YYYY-MM-DD") + " T23:59:59";
     console.log(startDate, endDate);
-    const data = { "action": 'bookingMetricsDaily', "startDate": startDate, "endDate": endDate }
+    const data = {
+      action: "bookingMetricsDaily",
+      startDate: startDate,
+      endDate: endDate,
+    };
     setCurrent(1);
-    setStatus('process');
-    sendMessage(JSON.stringify(data))
-  }
+    setStatus("process");
 
-  // Parse the data from the last message and set the chart data
-  const onClickVisualize = () => {
-    try {
-
-        const data = JSON.parse(lastMessage?.data).dates
-        const stats = JSON.parse(lastMessage?.data).total
-        
-        // if (radioValue === 1) {
-        //   setChartMax(1)
-        // } else if (radioValue === 2) {
-        //   setChartMax(100)
-        // }
-        setChartMax(2000)
-        
-        if(data.length === 0) {
-            setChartData([])
-            setStatsBarData([[],[]])
-          } else {
-            setChartData(data)
-            setStatsBarData(stats)
-        }
-     
-    } catch (error) {
-      setStatus('error')
+    // Send the massage to the backend
+    if (readyState === 1) {
+      // Connected, send message directly
+      sendMessage(JSON.stringify(data));
+    } else if (readyState === 0 || readyState === 2) {
+      // Not connected, wait for the connection to be established
+      getWebSocket().addEventListener("open", () => {
+        sendMessage(JSON.stringify(data));
+      });
+    } else if (readyState === 3) {
+      // Closed, reconnect and send message
+      getWebSocket().close();
+      getWebSocket().addEventListener("open", () => {
+        sendMessage(JSON.stringify(data));
+      });
     }
-  }
+  };
 
   return (
     <div>
       {/* Breadcrumb */}
       <Breadcrumb
-         style={{
-              margin: '16px 0',
+        style={{
+          margin: "16px 0",
         }}
       >
-            <Breadcrumb.Item>
-              <Link to={'/'}>Home</Link>
-            </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to={"/"}>Home</Link>
+        </Breadcrumb.Item>
 
-            <Breadcrumb.Item>
-            <Link to={'/bookingMetric'}>Booking Metric</Link>
-            </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to={"/bookingMetricHeatMap"}>Booking Metric</Link>
+        </Breadcrumb.Item>
 
-            <Breadcrumb.Item>
-            <Link to={'/bookingMetricHeatMap'}>HeatMap</Link>
-            </Breadcrumb.Item>
-
+        <Breadcrumb.Item>
+          <Link to={"/bookingMetricHeatMap"}>HeatMap</Link>
+        </Breadcrumb.Item>
       </Breadcrumb>
 
-      <p>Booking Metric HeatMap</p>
-      
+      <Title level={3}>Booking Metric Data Analyze (HeatMap)</Title>
+
       {/* Chart */}
-      <HeatMap data = {chartData} range = {date} max = {chartMax} tooltip = {[0,1,2,3]}/>
+      <HeatMap
+        data={chartData}
+        range={date}
+        max={chartMax}
+        tooltip={[0, 1, 2, 3]}
+      />
 
-      {/* StatsBar */}
-      <StatsBar data = {statsBarData}/>
+      <Divider />
 
-      {/* Date Picker */}
-      <DatePicker onChange={onChangeDatePicker} picker="month" />
+      <Space direction="vertical">
+        {/* StatsBar */}
+        <StatsBar data={statsBarData} />
+        <Space>
+          {/* Date Picker */}
+          <DatePicker onChange={onChangeDatePicker} picker="month" />
 
-    {/* Buttons */}
-    <button onClick={onClickSubmit}>Send Message</button> 
-    <button onClick={onClickVisualize}>Visualize</button> 
+          {/* Buttons */}
+          <Button onClick={onClickSubmit}>Submit Date</Button>
+        </Space>
 
-    {/* Radio
-    <Radio.Group onChange={onChangeRadio} value={radioValue}>
-        <Radio value={1}>Rates</Radio>
-        <Radio value={2}>Numbers</Radio>
-    </Radio.Group> */}
+        {/* Steps */}
+        <Steps
+          current={current}
+          status={status}
+          items={[
+            {
+              title: "Select date",
+              description:
+                "Select and submit the date, you can switch between daily and monthly view.",
+            },
+            {
+              title: "Analyze data",
+              description: "Please wait for data processing.",
+            },
+            {
+              title: "Visualize data",
+              description: "Visualize data in the chart and stats bar above.",
+            },
+          ]}
+        />
+      </Space>
 
-
-    {/* Steps */}
-    <Steps
-      current={current}
-      status= {status}
-      items={[
-        {
-          title: 'Select date',  
-        },
-        {
-          title: 'Analyze data',  
-        },
-        {
-          title: 'Visualize data',          
-        },
-      ]}
-    />
-
-    <p>startDate message: {date}</p>
-    <p>Last message: {lastMessage?.data}</p>
-    <p>type: {typeof(lastMessage?.data)}</p>
-    <p>Last message id: </p>
-
-      
+      {/* <p>startDate message: {date}</p>
+      <p>Last message: {lastMessage?.data}</p>
+      <p>type: {typeof lastMessage?.data}</p>
+      <p>Last message id: </p> */}
     </div>
-  )
-}
+  );
+};
 
-export default BookingMetricHeatMap
+export default BookingMetricHeatMap;

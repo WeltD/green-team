@@ -1,9 +1,10 @@
-import { Layout as AntLayout, theme} from 'antd';
+import { Layout as AntLayout, theme, Typography} from 'antd';
 import { useState } from 'react';
 
 import SideMenu from '../../components/SideMenu';
 
 const { Header, Content, Footer, Sider } = AntLayout;
+const { Text } = Typography;
 
 const Layout = ({children}) => {
 
@@ -20,11 +21,7 @@ const Layout = ({children}) => {
       }}
     >
 
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} 
-        style={{
-          background: colorBgContainer,
-        }}
-      >
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)} >
 
         {/* 搜索栏 */}
         <div
@@ -33,7 +30,8 @@ const Layout = ({children}) => {
             margin: 16,
             background: 'rgba(255, 255, 255, 0.2)',
           }}
-        />
+        >
+        </div>
 
         <SideMenu/>
 
@@ -41,12 +39,16 @@ const Layout = ({children}) => {
       </Sider>
 
       <AntLayout className="site-layout">
-        <Header
+        {/* <Header
           style={{
             padding: 0,
             background: colorBgContainer,
-          }}
-        />
+          }}>
+
+          <Title level={2}>Bristol Airport Data Analysis System</Title>
+
+        </Header>
+   */}
 
         <Content
           style={{
@@ -62,7 +64,7 @@ const Layout = ({children}) => {
             textAlign: 'center',
           }}
         >
-          Ant Design ©2023 Created by Ant UED
+          Bristol Airport Data Analysis System ©2023 Created by Green Team
         </Footer>
 
       </AntLayout>

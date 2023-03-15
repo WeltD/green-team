@@ -2,22 +2,22 @@ import React, { useState, useEffect } from "react";
 import {
   Breadcrumb,
   DatePicker,
-  Switch,
   Steps,
   Typography,
   Space,
   Button,
+  Divider,
 } from "antd";
 import { Link } from "react-router-dom";
-import BarChart from "../../../components/Charts/BarChart";
+import HeatMap from "../../../components/Charts/Heatmap";
 import StatsBar from "../../../components/StatsBar";
 
 import useWebSocket from "react-use-websocket";
 
-const { RangePicker } = DatePicker;
+const dayjs = require("dayjs");
 const { Title } = Typography;
 
-const InAdvanceBar = () => {
+const StayHeatMap = () => {
   // Websocket connection
   const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
     "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
@@ -26,20 +26,13 @@ const InAdvanceBar = () => {
       reconnectInterval: 3000,
     }
   );
-
   // State variables
   //Range/Date picker State
-  const [dates, setDates] = useState(null);
-  const [value, setValue] = useState(null);
-  const [range, setRange] = useState(1);
-
-  //Websocket connection State
-  const [startDate, setStartDate] = React.useState(null);
-  const [endDate, setEndDate] = React.useState(null);
-  const [massageAction, setMassageAction] = useState("inAdvanceDaily");
+  const [date, setDate] = useState("2020-01");
 
   //Chart State
   const [chartData, setChartData] = useState([[], []]);
+  const [chartMax, setChartMax] = useState(20);
 
   //StatsBar State
   const [statsBarData, setStatsBarData] = useState([[], []]);
@@ -51,18 +44,15 @@ const InAdvanceBar = () => {
   useEffect(() => {
     if (lastMessage) {
       try {
-        const cData =
-          massageAction === "inAdvanceDaily"
-            ? JSON.parse(lastMessage?.data).datesInAdvanceAverage
-            : JSON.parse(lastMessage?.data).monthsInAdvanceAverage;
-        const sData = JSON.parse(lastMessage?.data).inAdvanceAverage;
+        const data = JSON.parse(lastMessage?.data).dailyStayAverage;
+        const statsBarData = JSON.parse(lastMessage?.data).stayAverage;
 
-        if (cData.length === 0) {
+        if (data.length === 0) {
           setChartData([]);
           setStatsBarData([[], []]);
         } else {
-          setChartData(cData);
-          setStatsBarData(sData);
+          setChartData(data);
+          setStatsBarData(statsBarData);
         }
       } catch (error) {
         setStatus("error");
@@ -72,52 +62,22 @@ const InAdvanceBar = () => {
     }
   }, [lastMessage]);
 
-  const disabledDate = (current) => {
-    if (!dates) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], "days") > range;
-    const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
-    return !!tooEarly || !!tooLate;
-  };
-
-  const onOpenChange = (open) => {
+  // Set the date state when the date picker is changed
+  const onChangeDatePicker = (date, dateString) => {
     setCurrent(0);
     setStatus("process");
-    if (open) {
-      setDates([null, null]);
-    } else {
-      setDates(null);
-    }
-  };
-
-  const onChangeSwitch = (checked) => {
-    setValue(null);
-    setChartData([]);
-    setStatsBarData([[], []]);
-    setCurrent(0);
-    setStartDate(null);
-    setEndDate(null);
-    setStatus("process");
-    if (checked) {
-      setRange(1);
-      setMassageAction("inAdvanceDaily");
-    } else {
-      setRange(32);
-      setMassageAction("inAdvanceMonthly");
-    }
-  };
-
-  const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
-    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
-    setValue(dates);
+    setDate(dateString);
   };
 
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
+    const startDate =
+      dayjs(date).startOf("month").format("YYYY-MM-DD") + " T00:00:00";
+    const endDate =
+      dayjs(date).endOf("month").format("YYYY-MM-DD") + " T23:59:59";
+    console.log(startDate, endDate);
     const data = {
-      action: massageAction,
+      action: "stayDaily",
       startDate: startDate,
       endDate: endDate,
     };
@@ -155,46 +115,30 @@ const InAdvanceBar = () => {
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/inAdvanceBar"}>In Advance</Link>
+          <Link to={"/averageKeyHeatMap"}>Stay</Link>
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/inAdvanceBar"}>BarChart</Link>
+          <Link to={"/averageKeyHeatMap"}>HeatMap</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>In Advance Data Analyze (BarChart)</Title>
+      <Title level={3}>Stay Data Analyze (HeatMap)</Title>
 
       {/* Chart */}
-      <BarChart data={chartData} series={[{ type: "bar" }, { type: "bar" }]} />
+      <HeatMap data={chartData} range={date} max={chartMax} tooltip={[0, 1]} />
+
+      <Divider />
 
       <Space direction="vertical">
-        {/* Stats Bar */}
+        {/* StatsBar */}
         <StatsBar data={statsBarData} />
+        <Space>
+          {/* Date Picker */}
+          <DatePicker onChange={onChangeDatePicker} picker="month" />
 
-        <Space wrap align="baseline">
-          <Space direction="vertical">
-            {/* Date Picker */}
-            <RangePicker
-              value={dates || value}
-              disabledDate={disabledDate}
-              onCalendarChange={(val) => setDates(val)}
-              onChange={onChangeRangePicker}
-              onOpenChange={onOpenChange}
-              picker="month"
-            />
-
-            {/* Buttons */}
-            <Button onClick={onClickSubmit}>Submit Date</Button>
-          </Space>
-
-          {/* Switch for daily/monthly */}
-          <Switch
-            checkedChildren="Daily"
-            unCheckedChildren="Monthly"
-            defaultChecked
-            onChange={onChangeSwitch}
-          />
+          {/* Buttons */}
+          <Button onClick={onClickSubmit}>Submit Date</Button>
         </Space>
 
         {/* Steps */}
@@ -219,14 +163,13 @@ const InAdvanceBar = () => {
         />
       </Space>
 
-      {/* <p>startDate message: {startDate}</p>
-      <p>endDate message: {endDate}</p>
+      {/* <p>startDate message: {date}</p>
       <p>Last message: {lastMessage?.data}</p>
       <p>type: {typeof lastMessage?.data}</p>
       <p>Last message id: </p> */}
-      
     </div>
   );
+
 };
 
-export default InAdvanceBar;
+export default StayHeatMap;
