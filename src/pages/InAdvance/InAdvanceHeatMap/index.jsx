@@ -9,7 +9,7 @@ import {
   Divider,
 } from "antd";
 import { Link } from "react-router-dom";
-import HeatMap from "../../../components/Charts/Heatmap";
+import IAHeatMap from "./IAHeatMap";
 import StatsBar from "../../../components/StatsBar";
 
 import useWebSocket from "react-use-websocket";
@@ -54,11 +54,10 @@ const InAdvanceHeatMap = () => {
           setChartData(data);
           setStatsBarData(statsBarData);
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-
-      setCurrent(2);
     }
   }, [lastMessage]);
 
@@ -124,13 +123,7 @@ const InAdvanceHeatMap = () => {
 
       <Title level={3}>In Advance Data Analyze (HeatMap)</Title>
       
-      {/* Chart */}
-      <HeatMap
-        data={chartData}
-        range={date}
-        max={chartMax}
-        tooltip={[0, 1, 2]}
-      />
+      <IAHeatMap data={chartData} range={date} max={chartMax} />
 
       <Divider />
 

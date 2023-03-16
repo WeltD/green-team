@@ -4,6 +4,7 @@ import StatsCard from '../StatsCard'
 
 const StatsBar = (props) => {
   const {data} = props
+  
   function creatBar(data) {
     try{
       return  data[0].map((item, index) => (<StatsCard label={item} number={data[1][index]} />))
@@ -12,6 +13,7 @@ const StatsBar = (props) => {
       return null
     }
   }
+
   return (
     <div>
     <Space size="middle" wrap>

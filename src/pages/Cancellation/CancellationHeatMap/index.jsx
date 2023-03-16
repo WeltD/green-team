@@ -10,7 +10,7 @@ import {
   Divider,
 } from "antd";
 import { Link } from "react-router-dom";
-import HeatMap from "../../../components/Charts/Heatmap";
+import CHeatMap from "./CHeatMap";
 import StatsBar from "../../../components/StatsBar";
 
 import useWebSocket from "react-use-websocket";
@@ -35,7 +35,7 @@ const CancellationHeatMap = () => {
   const [radioValue, setRadioValue] = useState(1);
 
   //Chart State
-  const [chartData, setChartData] = useState([[], []]);
+  const [chartData, setChartData] = useState([]);
   const [chartMax, setChartMax] = useState(1);
 
   //StatsBar State
@@ -69,10 +69,10 @@ const CancellationHeatMap = () => {
           setChartData(data);
           setStatsBarData(statsBarData);
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-      setCurrent(2);
     }
   }, [lastMessage]);
 
@@ -172,13 +172,13 @@ const CancellationHeatMap = () => {
       <Title level={3}>Cancellation Data Analyze (HeatMap)</Title>
 
       {/* Chart */}
-      <HeatMap
+      {/* <HeatMap
         data={chartData}
         range={date}
         max={chartMax}
         tooltip={[0, 1, 2, 3]}
-      />
-
+      /> */}
+      <CHeatMap data={chartData} range={date} max={chartMax} />
       <Divider />
       <Space direction="vertical">
         {/* StatsBar */}

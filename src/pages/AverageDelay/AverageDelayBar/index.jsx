@@ -92,10 +92,10 @@ const AverageDelayBar = () => {
           setChartData(chartData());
           setStatsBarData(statsBarData());
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-      setCurrent(2);
     }
   }, [lastMessage]);
 

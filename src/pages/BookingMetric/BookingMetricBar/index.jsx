@@ -68,12 +68,10 @@ const BookingMetricBar = () => {
           setChartData(cData);
           setStatsBarData(sData);
         }
-
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-
-      setCurrent(2);
     }
   }, [lastMessage]);
 
@@ -127,7 +125,7 @@ const BookingMetricBar = () => {
     };
     setCurrent(1);
     setStatus("process");
-    
+
     // Send the massage to the backend
     if (readyState === 1) {
       // Connected, send message directly
@@ -175,7 +173,7 @@ const BookingMetricBar = () => {
         series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
       />
 
-<Space direction="vertical">
+      <Space direction="vertical">
         {/* Stats Bar */}
         <StatsBar data={statsBarData} />
 

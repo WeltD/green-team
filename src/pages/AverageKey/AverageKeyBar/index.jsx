@@ -64,11 +64,10 @@ const AverageKeyBar = () => {
           setChartData(cData);
           setStatsBarData(sData);
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-
-      setCurrent(2);
     }
   }, [lastMessage]);
 

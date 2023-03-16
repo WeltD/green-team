@@ -92,11 +92,10 @@ const CancellationBar = () => {
           setChartData(chartData());
           setStatsBarData(statsBarData());
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-
-      setCurrent(2);
     }
   }, [lastMessage]);
 
@@ -131,7 +130,7 @@ const CancellationBar = () => {
       setRange(1);
       setMassageAction("cancellationDaily");
     } else {
-      setRange(32);
+      setRange(186);
       setMassageAction("cancellationMonthly");
     }
   };

@@ -58,11 +58,10 @@ const BookingMetricHeatMap = () => {
           setChartData(data);
           setStatsBarData(stats);
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-
-      setCurrent(2);
     }
   }, [lastMessage]);
 

@@ -63,10 +63,10 @@ const AverageDelayHeatMap = () => {
           setChartData(data);
           setStatsBarData(statsBarData);
         }
+        setCurrent(2);
       } catch (error) {
         setStatus("error");
       }
-      setCurrent(2);
     }
   }, [lastMessage]);
 
@@ -203,6 +203,12 @@ const AverageDelayHeatMap = () => {
           ]}
         />
       </Space>
+
+    <p>Last message: {lastMessage?.data}</p>
+    <p>type: {typeof(lastMessage?.data)}</p>
+    <p>Last message id: </p>
+
+
     </div>
   );
 };
