@@ -8,12 +8,22 @@ import {
   Typography,
   Space,
   Button,
+  Card,
 } from "antd";
+import {
+  CarryOutOutlined,
+  SearchOutlined,
+  FundViewOutlined,
+  LoadingOutlined,
+  CloseCircleOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import BarChart from "../../../components/Charts/BarChart";
 import StatsBar from "../../../components/StatsBar";
 
 import useWebSocket from "react-use-websocket";
+
+import dayjs from "dayjs";
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
@@ -105,7 +115,11 @@ const CancellationBar = () => {
     }
     const tooLate = dates[0] && current.diff(dates[0], "days") > range;
     const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
-    return !!tooEarly || !!tooLate;
+    // Can not select days before today and today and after 155 days
+
+    return (
+      !!tooEarly || !!tooLate || (current && current > dayjs().endOf("day"))
+    );
   };
 
   const onOpenChange = (open) => {
@@ -130,7 +144,7 @@ const CancellationBar = () => {
       setRange(1);
       setMassageAction("cancellationDaily");
     } else {
-      setRange(186);
+      setRange(155);
       setMassageAction("cancellationMonthly");
     }
   };
@@ -216,6 +230,34 @@ const CancellationBar = () => {
     }
   };
 
+  const selecIcon = () => {
+    if (status === "error" && current === 0) {
+      return <CloseCircleOutlined />;
+    } else {
+      return <CarryOutOutlined />;
+    }
+  };
+
+  const analyzeIcon = () => {
+    if (current === 1) {
+      if (status === "process") {
+        return <LoadingOutlined />;
+      } else {
+        return <CloseCircleOutlined />;
+      }
+    } else {
+      return <SearchOutlined />;
+    }
+  };
+
+  const visualizeIcon = () => {
+    if (status === "error" && current === 2) {
+      return <CloseCircleOutlined />;
+    } else {
+      return <FundViewOutlined />;
+    }
+  };
+
   return (
     <div>
       {/* Breadcrumb */}
@@ -238,20 +280,9 @@ const CancellationBar = () => {
       </Breadcrumb>
 
       <Title level={3}>Cancellation Data Analyze (BarChart)</Title>
-
-      {/* Chart */}
-      <BarChart
-        data={chartData}
-        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
-      />
-
-      <Space direction="vertical">
-        {/* Stats Bar */}
-        <StatsBar data={statsBarData} />
-
-        <Space wrap align="baseline">
-          <Space direction="vertical">
-            {/* Date Picker */}
+      <Card
+        extra={
+          <Space>
             <RangePicker
               value={dates || value}
               disabledDate={disabledDate}
@@ -261,49 +292,63 @@ const CancellationBar = () => {
               picker="month"
             />
 
-            {/* Buttons */}
-            <Button onClick={onClickSubmit}>Submit Date</Button>
+            <Switch
+              checkedChildren="Daily"
+              unCheckedChildren="Monthly"
+              defaultChecked
+              onChange={onChangeSwitch}
+            />
           </Space>
+        }
+      >
+        <BarChart
+          data={chartData}
+          series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
+        />
 
-          {/* Switch for daily/monthly */}
-          <Switch
-            checkedChildren="Daily"
-            unCheckedChildren="Monthly"
-            defaultChecked
-            onChange={onChangeSwitch}
-          />
+        {/* Buttons */}
+        <Button onClick={onClickSubmit}>Submit Date</Button>
 
-          {/* Radio */}
+        <Card>
           <Radio.Group onChange={onChangeRadio} value={radioValue}>
             <Space wrap align="start">
               <Radio value={1}>Rates</Radio>
               <Radio value={2}>Numbers</Radio>
             </Space>
           </Radio.Group>
-        </Space>
+        </Card>
+      </Card>
+      {/* Chart */}
+      {/* <BarChart
+        data={chartData}
+        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
+      /> */}
 
-        {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description:
-                "Visualize different data using the Rate and Numbers options.",
-            },
-          ]}
-        />
-      </Space>
+      <StatsBar data={statsBarData} />
+      {/* Steps */}
+      <Steps
+        current={current}
+        status={status}
+        items={[
+          {
+            icon: selecIcon(),
+            title: "Select date",
+            description:
+              "Select and submit the date, you can switch between daily and monthly view.",
+          },
+          {
+            icon: analyzeIcon(),
+            title: "Analyze data",
+            description: "Please wait for data processing.",
+          },
+          {
+            icon: visualizeIcon(),
+            title: "Visualize data",
+            description:
+              "Visualize different data using the Rate and Numbers options.",
+          },
+        ]}
+      />
       {/* <p>startDate message: {startDate}</p>
       <p>endDate message: {endDate}</p>
       <p>Last message: {lastMessage?.data}</p>

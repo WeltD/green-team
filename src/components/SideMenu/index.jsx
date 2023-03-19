@@ -1,4 +1,4 @@
-import { AppstoreOutlined, MailOutlined, HomeOutlined, BarChartOutlined, CalendarOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, HomeOutlined, BarChartOutlined, CalendarOutlined } from '@ant-design/icons';
 import { Divider, Menu, Switch} from 'antd';
 import { useNavigate,} from 'react-router-dom'
 import { useState } from 'react';
@@ -30,6 +30,7 @@ const items = [
   getItem('Booking', 'booking', <AppstoreOutlined />, [
     getItem('BarChart', 'bookingMetricBar', <BarChartOutlined />),
     getItem('Heat Map', 'bookingMetricHeatMap', <CalendarOutlined /> ),
+    getItem('Forecast', 'bookingMetricForecast', <CalendarOutlined />),
   ]),
   getItem('Cancellation', 'cancellation', <AppstoreOutlined />,  [
     getItem('BarChart', 'cancellationBar', <BarChartOutlined />),

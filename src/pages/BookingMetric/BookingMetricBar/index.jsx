@@ -7,6 +7,7 @@ import {
   Typography,
   Space,
   Button,
+  Card,
 } from "antd";
 import { Link } from "react-router-dom";
 import BarChart from "../../../components/Charts/BarChart";
@@ -105,7 +106,7 @@ const BookingMetricBar = () => {
       setRange(1);
       setMassageAction("bookingMetricsDaily");
     } else {
-      setRange(32);
+      setRange(186);
       setMassageAction("bookingMetricsMonthly");
     }
   };
@@ -168,6 +169,21 @@ const BookingMetricBar = () => {
       <Title level={3}>Booking Metric Data Analyze (BarChart)</Title>
 
       {/* Chart */}
+      <Card title="Card title" extra= {
+        <RangePicker
+              value={dates || value}
+              disabledDate={disabledDate}
+              onCalendarChange={(val) => setDates(val)}
+              onChange={onChangeRangePicker}
+              onOpenChange={onOpenChange}
+              picker="month"
+            />
+      } bordered={false}>
+      <BarChart
+        data={chartData}
+        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
+      />
+      </Card>
       <BarChart
         data={chartData}
         series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}

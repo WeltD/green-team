@@ -10,6 +10,7 @@ import {
 } from "antd";
 import { Link } from "react-router-dom";
 import HeatMap from "../../../components/Charts/Heatmap";
+import BMHeatMap from "./BMHeatMap";
 import StatsBar from "../../../components/StatsBar";
 
 import useWebSocket from "react-use-websocket";
@@ -129,11 +130,17 @@ const BookingMetricHeatMap = () => {
       <Title level={3}>Booking Metric Data Analyze (HeatMap)</Title>
 
       {/* Chart */}
-      <HeatMap
+      {/* <HeatMap
         data={chartData}
         range={date}
         max={chartMax}
         tooltip={[0, 1, 2, 3]}
+      /> */}
+
+      <BMHeatMap
+        data={chartData}
+        range={date}
+        max={chartMax}
       />
 
       <Divider />

@@ -102,7 +102,7 @@ const InAdvanceBar = () => {
       setRange(1);
       setMassageAction("inAdvanceDaily");
     } else {
-      setRange(32);
+      setRange(186);
       setMassageAction("inAdvanceMonthly");
     }
   };

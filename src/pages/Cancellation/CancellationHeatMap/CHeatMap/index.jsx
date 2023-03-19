@@ -38,6 +38,17 @@ const CHeatMap = (props) => {
         left: "10%",
         cellSize: ["auto", "auto"],
         orient: "vertical",
+        itemStyle: {
+          borderWidth: 0.5,
+        },
+        dayLabel: {
+          margin: 20,
+          firstDay: 1,
+          nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        monthLabel: {
+          show: false
+        },
         yearLabel: { show: false },
         range: props.range,
       },
@@ -56,6 +67,16 @@ const CHeatMap = (props) => {
     legend: {
       top: "bottom",
       selectedMode: "single",
+    },
+
+    toolbox: {
+      show: true,
+      orient: "vertical",
+      left: 'left',
+      feature: {
+        dataView: { readOnly: false },
+        saveAsImage: {}
+      }
     },
 
     // Declare several HeatMap, each will be mapped

@@ -2,29 +2,31 @@ import React, { useState, useEffect } from "react";
 import {
   Breadcrumb,
   DatePicker,
-  Switch,
   Radio,
   Steps,
   Typography,
   Space,
   Button,
+  Divider,
 } from "antd";
 import { Link } from "react-router-dom";
-import BarChart from "../../../components/Charts/BarChart";
-import StatsBar from "../../../components/StatsBar";
+import ForecastLine from "../../../components/Charts/ForecastLine";
 
 import useWebSocket from "react-use-websocket";
 
+const dayjs = require("dayjs");
+
 const { RangePicker } = DatePicker;
+
 const { Title } = Typography;
 
-const AverageDelayBar = () => {
+const BookingMetricForecast = () => {
   // Websocket connection
   const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
     "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
     {
       reconnectAttempts: 100,
-      reconnectInterval: 3000
+      reconnectInterval: 3000,
     }
   );
 
@@ -32,7 +34,6 @@ const AverageDelayBar = () => {
   //Range/Date picker State
   const [dates, setDates] = useState(null);
   const [value, setValue] = useState(null);
-  const [range, setRange] = useState(1);
 
   //Radio State
   const [radioValue, setRadioValue] = useState(1);
@@ -40,13 +41,11 @@ const AverageDelayBar = () => {
   //Websocket connection State
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
-  const [massageAction, setMassageAction] = useState("averageDelayDaily");
 
   //Chart State
-  const [chartData, setChartData] = useState([[], []]);
-
-  //StatsBar State
-  const [statsBarData, setStatsBarData] = useState([[], []]);
+  const [chartSeries, setChartSeries] = useState([]);
+  const [chartXaxis, setChartXaxis] = useState([]);
+  const [chartTitle, setChartTitle] = useState(null);
 
   //Steps State
   const [current, setCurrent] = useState(0);
@@ -55,43 +54,57 @@ const AverageDelayBar = () => {
   useEffect(() => {
     if (lastMessage) {
       try {
-        const chartData = () => {
+        const data = JSON.parse(lastMessage?.data);
+
+        const series = () => {
           switch (radioValue) {
             case 1:
-              if (massageAction === "averageDelayDaily") {
-                return JSON.parse(lastMessage?.data).inbound.date;
-              } else {
-                return JSON.parse(lastMessage?.data).inbound.month;
-              }
+              return data.bookingMadeForecast.forecastData;
             case 2:
-              if (massageAction === "averageDelayDaily") {
-                return JSON.parse(lastMessage?.data).outbound.date;
-              } else {
-                return JSON.parse(lastMessage?.data).outbound.month;
-              }
+              return data.bookingStartForecast.forecastData;
+            case 3:
+              return data.bookingEndForecast.forecastData;
             default:
               return [];
           }
         };
 
-        const statsBarData = () => {
+        const xaxis = () => {
           switch (radioValue) {
             case 1:
-              return JSON.parse(lastMessage?.data).inbound.total;
+              return data.bookingMadeForecast.timestamps;
             case 2:
-              return JSON.parse(lastMessage?.data).inbound.total;
+              return data.bookingStartForecast.timestamps;
+            case 3:
+              return data.bookingEndForecast.timestamps;
             default:
               return [];
           }
         };
 
-        if (chartData().length === 0) {
-          setChartData([]);
-          setStatsBarData([[], []]);
+        const title = () => {
+          switch (radioValue) {
+            case 1:
+              return data.bookingMadeForecast.title;
+            case 2:
+              return data.bookingStartForecast.title;
+            case 3:
+              return data.bookingEndForecast.title;
+            default:
+              return [];
+          }
+        };
+
+        if (data.length === 0) {
+          setChartSeries([]);
+          setChartXaxis([]);
+          setChartTitle(null);
         } else {
-          setChartData(chartData());
-          setStatsBarData(statsBarData());
+          setChartSeries(series());
+          setChartXaxis(xaxis());
+          setChartTitle(title());
         }
+
         setCurrent(2);
       } catch (error) {
         setStatus("error");
@@ -103,9 +116,9 @@ const AverageDelayBar = () => {
     if (!dates) {
       return false;
     }
-    const tooLate = dates[0] && current.diff(dates[0], "days") > range;
-    const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
-    return !!tooEarly || !!tooLate;
+    // Can not select days before today and today and year must in 2023
+
+    return current && (current.year() !== 2023 || current < dayjs().endOf('day'));
   };
 
   const onOpenChange = (open) => {
@@ -118,62 +131,64 @@ const AverageDelayBar = () => {
     }
   };
 
-  const onChangeSwitch = (checked) => {
-    setValue(null);
-    setChartData([]);
-    setStatsBarData([[], []]);
-    setCurrent(0);
-    setStartDate(null);
-    setEndDate(null);
-    setStatus("process");
-    if (checked) {
-      setRange(1);
-      setMassageAction("averageDelayDaily");
-    } else {
-      setRange(186);
-      setMassageAction("averageDelayMonthly");
-    }
+  const onChangeRangePicker = (dates) => {
+    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + "T00:00:00");
+    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + "T23:59:59");
+    setValue(dates);
   };
 
   const onChangeRadio = (e) => {
     setRadioValue(e.target.value);
     try {
-      const chartData = () => {
+      const data = JSON.parse(lastMessage?.data);
+
+      const series = () => {
         switch (e.target.value) {
           case 1:
-            if (massageAction === "averageDelayDaily") {
-              return JSON.parse(lastMessage?.data).inbound.date;
-            } else {
-              return JSON.parse(lastMessage?.data).inbound.month;
-            }
+            return data.bookingMadeForecast.forecastData;
           case 2:
-            if (massageAction === "averageDelayDaily") {
-              return JSON.parse(lastMessage?.data).outbound.date;
-            } else {
-              return JSON.parse(lastMessage?.data).outbound.month;
-            }
+            return data.bookingStartForecast.forecastData;
+          case 3:
+            return data.bookingEndForecast.forecastData;
           default:
             return [];
         }
       };
 
-      const statsBarData = () => {
+      const xaxis = () => {
         switch (e.target.value) {
           case 1:
-            return JSON.parse(lastMessage?.data).inbound.total;
+            return data.bookingMadeForecast.timestamps;
           case 2:
-            return JSON.parse(lastMessage?.data).inbound.total;
+            return data.bookingStartForecast.timestamps;
+          case 3:
+            return data.bookingEndForecast.timestamps;
           default:
             return [];
         }
       };
 
-      if (chartData().length === 0) {
-        setChartData([]);
-        setStatsBarData([[], []]);
+      const title = () => {
+        switch (e.target.value) {
+          case 1:
+            return data.bookingMadeForecast.title;
+          case 2:
+            return data.bookingStartForecast.title;
+          case 3:
+            return data.bookingEndForecast.title;
+          default:
+            return [];
+        }
+      };
+
+      if (data.length === 0) {
+        setChartSeries([]);
+        setChartXaxis([]);
+        setChartTitle(null);
       } else {
-        setChartData(chartData());
-        setStatsBarData(statsBarData());
+        setChartSeries(series());
+        setChartXaxis(xaxis());
+        setChartTitle(title());
       }
     } catch (error) {
       if (current === 2) {
@@ -182,22 +197,16 @@ const AverageDelayBar = () => {
     }
   };
 
-  const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
-    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
-    setValue(dates);
-  };
-
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
     const data = {
-      action: massageAction,
+      action: "forecastBookingMetrics",
       startDate: startDate,
       endDate: endDate,
     };
     setCurrent(1);
-    setStatus("process");
 
+    setStatus("process");
     // Send the massage to the backend
     if (readyState === 1) {
       // Connected, send message directly
@@ -229,22 +238,26 @@ const AverageDelayBar = () => {
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/averageDelay"}>Average Delay</Link>
+          <Link to={"/averageDelayHeatMap"}>Average Delay</Link>
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/averageDelayBar"}>BarChart</Link>
+          <Link to={"/averageDelayHeatMap"}>HeatMap</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>Average Delay Data Analyze (BarChart)</Title>
+      <Title level={3}>Cancellation Data Analyze (HeatMap)</Title>
 
       {/* Chart */}
-      <BarChart data={chartData} series={[{ type: "bar" }]} />
+      <ForecastLine
+        title={chartTitle}
+        xAxis={chartXaxis}
+        series={chartSeries}
+      />
+
+      <Divider />
 
       <Space direction="vertical">
-        {/* Stats Bar */}
-        <StatsBar data={statsBarData} />
 
         <Space wrap align="baseline">
           <Space direction="vertical">
@@ -262,19 +275,12 @@ const AverageDelayBar = () => {
             <Button onClick={onClickSubmit}>Submit Date</Button>
           </Space>
 
-          {/* Switch for daily/monthly */}
-          <Switch
-            checkedChildren="Daily"
-            unCheckedChildren="Monthly"
-            defaultChecked
-            onChange={onChangeSwitch}
-          />
-
           {/* Radio */}
           <Radio.Group onChange={onChangeRadio} value={radioValue}>
-            <Space wrap align="start">
-              <Radio value={1}>Inbound</Radio>
-              <Radio value={2}>Outbound</Radio>
+            <Space direction="vertical" wrap align="start">
+              <Radio value={1}>Forecast for bookings made on a given date</Radio>
+              <Radio value={2}>Forecast for bookings starting on a given date</Radio>
+              <Radio value={3}>Forecast for bookings ending on a given date</Radio>
             </Space>
           </Radio.Group>
         </Space>
@@ -295,19 +301,17 @@ const AverageDelayBar = () => {
             },
             {
               title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
+              description:
+                "Visualize different data using the Rate and Numbers options.",
             },
           ]}
         />
       </Space>
-
-      {/* <p>startDate message: {startDate}</p>
-    <p>endDate message: {endDate}</p>
-    <p>Last message: {lastMessage?.data}</p>
-    <p>type: {typeof(lastMessage?.data)}</p>
-    <p>Last message id: </p> */}
+      <p>startDate message: {startDate}</p>
+      <p>endDate message: {endDate}</p>
+      <p>Last message: {lastMessage?.data}</p>
     </div>
   );
 };
 
-export default AverageDelayBar;
+export default BookingMetricForecast;

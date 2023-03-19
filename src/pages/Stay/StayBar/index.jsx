@@ -135,7 +135,7 @@ const StayBar = () => {
       setRange(1);
       setMassageAction("stayDaily");
     } else {
-      setRange(32);
+      setRange(186);
       setMassageAction("stayMonthly");
     }
   };

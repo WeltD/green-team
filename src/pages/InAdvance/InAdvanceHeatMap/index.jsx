@@ -97,6 +97,9 @@ const InAdvanceHeatMap = () => {
       getWebSocket().addEventListener("open", () => {
         sendMessage(JSON.stringify(data));
       });
+    } else {
+      // Other, error
+      console.error("WebSocket readyState error");
     }
   };
 

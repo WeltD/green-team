@@ -1,12 +1,13 @@
 import React from "react";
 import ReactEcharts from "echarts-for-react";
 
-const IAHeatMap = (props) => {
+const BMHeatMap = (props) => {
   function transformData(data) {
     if (data.length === 0) {
       return [
-        [["Date", "Average number of days booked in advance for bookings made in time period"]],
-        [["Date", "Average number of days booked in advance for bookings started in time period"]],
+        [["Date", "Bookings made on a given date",]],
+        [["Date", "Bookings started on a given date",]],
+        [["Date", "Bookings ended on a given date"]],
       ];
     } else {
       const headers = data[0];
@@ -82,18 +83,25 @@ const IAHeatMap = (props) => {
     // to a column of dataset.source by default.
     series: [
       {
-        name: "Average number of days booked in advance for bookings made in time period",
+        name: "Bookings made on a given date",
         type: "heatmap",
         coordinateSystem: "calendar",
         data: transformedData[0],
       },
       {
-        name: "Average number of days booked in advance for bookings started in time period",
+        name: "Bookings started on a given date",
         type: "heatmap",
         coordinateSystem: "calendar",
         data: transformedData[1],
       },
+      {
+        name: "Bookings ended on a given date",
+        type: "heatmap",
+        coordinateSystem: "calendar",
+        data: transformedData[2],
+      },
     ],
+    
   };
 
   return (
@@ -105,4 +113,4 @@ const IAHeatMap = (props) => {
   );
 };
 
-export default IAHeatMap;
+export default BMHeatMap;

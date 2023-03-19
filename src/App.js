@@ -20,6 +20,7 @@ import AverageKeyHeatMap from './pages/AverageKey/AverageKeyHeatMap';
 // Booking Metric
 import BookingMetricBar from './pages/BookingMetric/BookingMetricBar';
 import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
+import BookingMetricForecast from './pages/BookingMetric/BookingMetricForecast';
 
 //Cancellation
 import CancellationBar from './pages/Cancellation/CancellationBar';
@@ -58,6 +59,7 @@ function App() {
               {/* Booking Metric */}
               <Route path="/bookingMetricBar" element={<BookingMetricBar />}/>
               <Route path="/bookingMetricHeatMap" element={<BookingMetricHeatMap />}/>
+              <Route path="/bookingMetricForecast" element={<BookingMetricForecast />}/>
 
               {/* Cancellation */}
               <Route path="/cancellationBar" element={<CancellationBar />}/>
