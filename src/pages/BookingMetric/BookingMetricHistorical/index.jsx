@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  Breadcrumb,
-  DatePicker,
-  Switch,
-  Steps,
-  Typography,
-  Space,
-  Button,
-  Card,
-} from "antd";
-import { Link } from "react-router-dom";
-import BarChart from "../../../components/Charts/BarChart";
+
+import { Breadcrumb, Radio, Typography, Space, Button, Card } from "antd";
+import RangeSelector from "../../../components/RangeSelector";
+import Steps from "../../../components/Steps";
+import DataSetChart from "../../../components/Charts/DataSetChart";
 import StatsBar from "../../../components/StatsBar";
 
+import { Link } from "react-router-dom";
 import useWebSocket from "react-use-websocket";
 
-const { RangePicker } = DatePicker;
 const { Title } = Typography;
 
-const BookingMetricBar = () => {
+const BookingMetricHistorical = () => {
   // Websocket connection
   const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
     "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
@@ -29,14 +22,6 @@ const BookingMetricBar = () => {
   );
 
   // State variables
-  //Range/Date picker State
-  const [dates, setDates] = useState(null);
-  const [value, setValue] = useState(null);
-  const [range, setRange] = useState(1);
-
-  // //Radio State
-  // const [radioValue, setRadioValue] = useState(1);
-
   //Websocket connection State
   const [startDate, setStartDate] = React.useState(null);
   const [endDate, setEndDate] = React.useState(null);
@@ -76,45 +61,28 @@ const BookingMetricBar = () => {
     }
   }, [lastMessage]);
 
-  const disabledDate = (current) => {
-    if (!dates) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], "days") > range;
-    const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
-    return !!tooEarly || !!tooLate;
-  };
-
-  const onOpenChange = (open) => {
-    setCurrent(0);
-    setStatus("process");
-    if (open) {
-      setDates([null, null]);
-    } else {
-      setDates(null);
-    }
-  };
-
-  const onChangeSwitch = (checked) => {
-    setValue(null);
+  const switchAct = (checked) => {
     setChartData([]);
+    setStatsBarData([[], []]);
     setCurrent(0);
     setStartDate(null);
     setEndDate(null);
     setStatus("process");
     if (checked) {
-      setRange(1);
       setMassageAction("bookingMetricsDaily");
     } else {
-      setRange(186);
       setMassageAction("bookingMetricsMonthly");
     }
   };
 
-  const onChangeRangePicker = (dates) => {
+  const openAct = (open) => {
+    setCurrent(0);
+    setStatus("process");
+  };
+
+  const changeAct = (dates) => {
     setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
     setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
-    setValue(dates);
   };
 
   // Compile the date and action into a massage and send it to the backend
@@ -158,87 +126,45 @@ const BookingMetricBar = () => {
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/bookingMetricBar"}>Booking Metric</Link>
+          <Link to={"/bookingMetricHistorical"}>Booking Metric</Link>
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/bookingMetricBar"}>BarChart</Link>
+          <Link to={"/bookingMetricHistorical"}>Historical</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
+      
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        {/* Content */}
+        <Title level={3}>Booking Metric Historical Data Analysis</Title>
 
-      <Title level={3}>Booking Metric Data Analyze (BarChart)</Title>
-
-      {/* Chart */}
-      <Card title="Card title" extra= {
-        <RangePicker
-              value={dates || value}
-              disabledDate={disabledDate}
-              onCalendarChange={(val) => setDates(val)}
-              onChange={onChangeRangePicker}
-              onOpenChange={onOpenChange}
-              picker="month"
+        <Card
+          extra={
+            <RangeSelector
+              switchAct={switchAct}
+              openAct={openAct}
+              changeAct={changeAct}
             />
-      } bordered={false}>
-      <BarChart
-        data={chartData}
-        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
-      />
-      </Card>
-      <BarChart
-        data={chartData}
-        series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
-      />
-
-      <Space direction="vertical">
-        {/* Stats Bar */}
-        <StatsBar data={statsBarData} />
-
-        <Space wrap align="baseline">
-          <Space direction="vertical">
-            {/* Date Picker */}
-            <RangePicker
-              value={dates || value}
-              disabledDate={disabledDate}
-              onCalendarChange={(val) => setDates(val)}
-              onChange={onChangeRangePicker}
-              onOpenChange={onOpenChange}
-              picker="month"
-            />
-
+          }
+        >
+          <DataSetChart
+            data={chartData}
+            series={[{ type: "bar" }, { type: "bar" }, { type: "bar" }]}
+          />
             {/* Buttons */}
             <Button onClick={onClickSubmit}>Submit Date</Button>
-          </Space>
-
-          {/* Switch for daily/monthly */}
-          <Switch
-            checkedChildren="Daily"
-            unCheckedChildren="Monthly"
-            defaultChecked
-            onChange={onChangeSwitch}
-          />
-        </Space>
-
+        </Card>
+        <StatsBar data={statsBarData} />
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
       </Space>
+
 
       {/* <p>startDate message: {startDate}</p>
       <p>endDate message: {endDate}</p>
@@ -249,4 +175,4 @@ const BookingMetricBar = () => {
   );
 };
 
-export default BookingMetricBar;
+export default BookingMetricHistorical;

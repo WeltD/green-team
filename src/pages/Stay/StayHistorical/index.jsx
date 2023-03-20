@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from "react";
-import {
-  Breadcrumb,
-  DatePicker,
-  Switch,
-  Radio,
-  Steps,
-  Typography,
-  Space,
-  Button,
-} from "antd";
-import { Link } from "react-router-dom";
-import BarChart from "../../../components/Charts/BarChart";
+
+import { Breadcrumb, Radio, Typography, Space, Button, Card } from "antd";
+import RangeSelector from "../../../components/RangeSelector";
+import Steps from "../../../components/Steps";
+import DataSetChart from "../../../components/Charts/DataSetChart";
 import StatsBar from "../../../components/StatsBar";
 
+import { Link } from "react-router-dom";
 import useWebSocket from "react-use-websocket";
 
-const { RangePicker } = DatePicker;
 const { Title } = Typography;
 
-const StayBar = () => {
+const StayHistorical = () => {
   // Websocket connection
   const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
     "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
@@ -29,11 +22,6 @@ const StayBar = () => {
   );
 
   // State variables
-  //Range/Date picker State
-  const [dates, setDates] = useState(null);
-  const [value, setValue] = useState(null);
-  const [range, setRange] = useState(1);
-
   //Radio State
   const [radioValue, setRadioValue] = useState(3);
 
@@ -66,7 +54,6 @@ const StayBar = () => {
               return JSON.parse(lastMessage?.data).stayDistributionStart;
             case 3:
               setChartSeries([
-                { type: "bar" },
                 { type: "bar" },
                 { type: "bar" },
               ]);
@@ -104,27 +91,7 @@ const StayBar = () => {
     }
   }, [lastMessage]);
 
-  const disabledDate = (current) => {
-    if (!dates) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], "days") > range;
-    const tooEarly = dates[1] && dates[1].diff(current, "days") > range;
-    return !!tooEarly || !!tooLate;
-  };
-
-  const onOpenChange = (open) => {
-    setCurrent(0);
-    setStatus("process");
-    if (open) {
-      setDates([null, null]);
-    } else {
-      setDates(null);
-    }
-  };
-
-  const onChangeSwitch = (checked) => {
-    setValue(null);
+  const switchAct = (checked) => {
     setChartData([]);
     setStatsBarData([[], []]);
     setCurrent(0);
@@ -132,12 +99,20 @@ const StayBar = () => {
     setEndDate(null);
     setStatus("process");
     if (checked) {
-      setRange(1);
       setMassageAction("stayDaily");
     } else {
-      setRange(186);
       setMassageAction("stayMonthly");
     }
+  };
+
+  const openAct = (open) => {
+    setCurrent(0);
+    setStatus("process");
+  };
+
+  const changeAct = (dates) => {
+    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
+    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
   };
 
   const onChangeRadio = (e) => {
@@ -153,7 +128,7 @@ const StayBar = () => {
             setChartSeries([{ type: "bar" }]);
             return JSON.parse(lastMessage?.data).stayDistributionStart;
           case 3:
-            setChartSeries([{ type: "bar" }, { type: "bar" }, { type: "bar" }]);
+            setChartSeries([{ type: "bar" }, { type: "bar" }]);
             if (massageAction === "stayDaily") {
               return JSON.parse(lastMessage?.data).dailyStayAverage;
             } else {
@@ -187,12 +162,6 @@ const StayBar = () => {
     }
   };
 
-  const onChangeRangePicker = (dates) => {
-    setStartDate(dates[0].startOf("month").format("YYYY-MM-DD") + " T00:00:00");
-    setEndDate(dates[1].endOf("month").format("YYYY-MM-DD") + " T23:59:59");
-    setValue(dates);
-  };
-
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
     const data = {
@@ -221,50 +190,6 @@ const StayBar = () => {
     }
   };
 
-  // Parse the data from the last message and set the chart data
-  const onClickVisualize = () => {
-    try {
-      const chartData = () => {
-        switch (radioValue) {
-          case 1:
-            setChartSeries([{ type: "bar" }]);
-            return JSON.parse(lastMessage?.data).stayDistributionMade;
-          case 2:
-            setChartSeries([{ type: "bar" }]);
-            return JSON.parse(lastMessage?.data).stayDistributionStart;
-          case 3:
-            setChartSeries([{ type: "bar" }, { type: "bar" }, { type: "bar" }]);
-            if (massageAction === "stayDaily") {
-              return JSON.parse(lastMessage?.data).dailyStayAverage;
-            } else {
-              return JSON.parse(lastMessage?.data).monthsStayAverage;
-            }
-          default:
-            return [];
-        }
-      };
-
-      const statsBarData = () => {
-        switch (radioValue) {
-          case 3:
-            return JSON.parse(lastMessage?.data).stayAverage;
-          default:
-            return [[], []];
-        }
-      };
-
-      if (chartData().length === 0) {
-        setChartData([]);
-        setStatsBarData([[], []]);
-      } else {
-        setChartData(chartData());
-        setStatsBarData(statsBarData());
-      }
-    } catch (error) {
-      setStatus("error");
-    }
-  };
-
   return (
     <div>
       {/* Breadcrumb */}
@@ -278,78 +203,51 @@ const StayBar = () => {
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/stayBar"}>Stay</Link>
+          <Link to={"/stayHistorical"}>Stay</Link>
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/stayBar"}>BarChart</Link>
+          <Link to={"/stayHistorical"}>Historical</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>Stay Data Analyze (BarChart)</Title>
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        {/* Content */}
+        <Title level={3}>Stay Historical Data Analyze</Title>
 
-      {/* Chart */}
-      <BarChart data={chartData} series={chartSeries} />
-
-      <Space direction="vertical">
-        {/* Stats Bar */}
-        <StatsBar data={statsBarData} />
-
-        <Space wrap align="baseline">
-          <Space direction="vertical">
-            {/* Date Picker */}
-            <RangePicker
-              value={dates || value}
-              disabledDate={disabledDate}
-              onCalendarChange={(val) => setDates(val)}
-              onChange={onChangeRangePicker}
-              onOpenChange={onOpenChange}
-              picker="month"
+        <Card
+          extra={
+            <RangeSelector
+              switchAct={switchAct}
+              openAct={openAct}
+              changeAct={changeAct}
             />
+          }
+        >
+          <DataSetChart data={chartData} series={chartSeries} />
+
+          <Space direction="vertical">
+            <Radio.Group onChange={onChangeRadio} value={radioValue}>
+              <Space wrap align="start">
+                <Radio value={3}>Stay Average</Radio>
+                <Radio value={1}>Stay Distribution Made</Radio>
+                <Radio value={2}>Stay Distribution Start</Radio>
+              </Space>
+            </Radio.Group>
 
             {/* Buttons */}
             <Button onClick={onClickSubmit}>Submit Date</Button>
           </Space>
-
-          {/* Switch for daily/monthly */}
-          <Switch
-            checkedChildren="Daily"
-            unCheckedChildren="Monthly"
-            defaultChecked
-            onChange={onChangeSwitch}
-          />
-
-          {/* Radio */}
-          <Radio.Group onChange={onChangeRadio} value={radioValue}>
-            <Space wrap align="start">
-              <Radio value={3}>Stay Average</Radio>
-              <Radio value={1}>Stay Distribution Made</Radio>
-              <Radio value={2}>Stay Distribution Start</Radio>
-            </Space>
-          </Radio.Group>
-        </Space>
-
+        </Card>
+        <StatsBar data={statsBarData} />
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description:
-                "Visualize different data using the Rate and Numbers options.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
       </Space>
 
       {/* <p>startDate message: {startDate}</p>
@@ -360,4 +258,4 @@ const StayBar = () => {
   );
 };
 
-export default StayBar;
+export default StayHistorical;

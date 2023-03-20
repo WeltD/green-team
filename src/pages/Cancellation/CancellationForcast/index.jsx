@@ -20,7 +20,7 @@ const { RangePicker } = DatePicker;
 
 const { Title } = Typography;
 
-const BookingMetricForecast = () => {
+const CancellationForcast = () => {
   // Websocket connection
   const { readyState, getWebSocket, sendMessage, lastMessage } = useWebSocket(
     "wss://50heid0mqj.execute-api.eu-west-1.amazonaws.com/production",
@@ -117,7 +117,9 @@ const BookingMetricForecast = () => {
       return false;
     }
     // Can not select days before today and today and year must in 2023
-    return current && (current.year() !== 2023 || current < dayjs().endOf('day'));
+    return (
+      current && (current.year() !== 2023 || current < dayjs().endOf("day"))
+    );
   };
 
   const onOpenChange = (open) => {
@@ -199,7 +201,7 @@ const BookingMetricForecast = () => {
   // Compile the date and action into a massage and send it to the backend
   const onClickSubmit = () => {
     const data = {
-      action: "forecastBookingMetrics",
+      action: "forecastCancellation",
       startDate: startDate,
       endDate: endDate,
     };
@@ -237,11 +239,11 @@ const BookingMetricForecast = () => {
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/bookingMetricForecast"}>Booking Metric</Link>
+          <Link to={"/cancellationForcast"}>Cancellation</Link>
         </Breadcrumb.Item>
 
         <Breadcrumb.Item>
-          <Link to={"/bookingMetricForecast"}>Forecast</Link>
+          <Link to={"/cancellationForcast"}>Forecast</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
 
@@ -252,7 +254,7 @@ const BookingMetricForecast = () => {
           display: "flex",
         }}
       >
-        <Title level={3}>Booking Data Forecast</Title>
+        <Title level={3}>Cancellation Data Forecast</Title>
         <Card
           extra={
             <RangePicker
@@ -276,13 +278,13 @@ const BookingMetricForecast = () => {
             <Radio.Group onChange={onChangeRadio} value={radioValue}>
               <Space wrap>
                 <Radio value={1}>
-                  Forecast for bookings made on a given date
+                  Forecast for cancelled bookings made on a given date
                 </Radio>
                 <Radio value={2}>
-                  Forecast for bookings starting on a given date
+                  Forecast for cancelled bookings starting on a given date
                 </Radio>
                 <Radio value={3}>
-                  Forecast for bookings ending on a given date
+                  Forecast for cancelled bookings ending on a given date
                 </Radio>
               </Space>
             </Radio.Group>
@@ -292,11 +294,11 @@ const BookingMetricForecast = () => {
         </Card>
         <Steps current={current} status={status} />
       </Space>
-      <p>startDate message: {startDate}</p>
+      {/* <p>startDate message: {startDate}</p>
       <p>endDate message: {endDate}</p>
-      <p>Last message: {lastMessage?.data}</p>
+      <p>Last message: {lastMessage?.data}</p> */}
     </div>
   );
 };
 
-export default BookingMetricForecast;
+export default CancellationForcast;

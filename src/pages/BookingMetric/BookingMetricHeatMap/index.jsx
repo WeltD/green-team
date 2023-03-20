@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from "react";
-import {
-  Breadcrumb,
-  DatePicker,
-  Steps,
-  Typography,
-  Space,
-  Button,
-  Divider,
-} from "antd";
+import { Breadcrumb, DatePicker, Typography, Space, Button, Card } from "antd";
 import { Link } from "react-router-dom";
-import HeatMap from "../../../components/Charts/Heatmap";
 import BMHeatMap from "./BMHeatMap";
 import StatsBar from "../../../components/StatsBar";
+import Steps from "../../../components/Steps";
 
 import useWebSocket from "react-use-websocket";
 
@@ -66,11 +58,14 @@ const BookingMetricHeatMap = () => {
     }
   }, [lastMessage]);
 
+  const disabledDate = (current) => {
+    return current && current > dayjs().endOf("day");
+  };
+
   const onChangeDatePicker = (date, dateString) => {
     setCurrent(0);
     setStatus("process");
     setDate(dateString);
-    // console.log(date, dateString);
   };
 
   // Compile the date and action into a massage and send it to the backend
@@ -127,55 +122,42 @@ const BookingMetricHeatMap = () => {
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>Booking Metric Data Analyze (HeatMap)</Title>
+      {/* Content */}
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        <Title level={3}>Booking Metric Historical HeatMap</Title>
+        {/*HeatMap Card */}
+        <Card
+          extra={
+            <DatePicker
+              onChange={onChangeDatePicker}
+              disabledDate={disabledDate}
+              picker="month"
+            />
+          }
+        >
+          <Space
+            direction="vertical"
+            style={{
+              display: "flex",
+            }}
+          >
+            {/* HeatMap */}
+            <BMHeatMap data={chartData} range={date} max={chartMax} />
 
-      {/* Chart */}
-      {/* <HeatMap
-        data={chartData}
-        range={date}
-        max={chartMax}
-        tooltip={[0, 1, 2, 3]}
-      /> */}
-
-      <BMHeatMap
-        data={chartData}
-        range={date}
-        max={chartMax}
-      />
-
-      <Divider />
-
-      <Space direction="vertical">
+            {/* Submit Buttons */}
+            <Button onClick={onClickSubmit}>Submit Date</Button>
+          </Space>
+        </Card>
         {/* StatsBar */}
         <StatsBar data={statsBarData} />
-        <Space>
-          {/* Date Picker */}
-          <DatePicker onChange={onChangeDatePicker} picker="month" />
-
-          {/* Buttons */}
-          <Button onClick={onClickSubmit}>Submit Date</Button>
-        </Space>
-
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
       </Space>
 
       {/* <p>startDate message: {date}</p>

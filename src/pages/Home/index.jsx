@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const { Title } = Typography;
 
 const Home = () => {
+
   return (
     <div>
       <Breadcrumb
@@ -20,6 +21,7 @@ const Home = () => {
       <Typography>
         <Title>Bristol Airport Data Analysis System</Title>
       </Typography>
+
     </div>
   );
 };

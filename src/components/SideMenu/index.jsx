@@ -20,28 +20,30 @@ const items = [
   //   getItem('Submenu', 'sub1-2', null, [getItem('Option 5', '5'), getItem('Option 6', '6')]),
   // ]),
   getItem('Flight Delay', 'average delay', <AppstoreOutlined />, [
-    getItem('BarChart', 'averageDelayBar', <BarChartOutlined />),
+    getItem('Historical', 'averageDelayHistorical', <BarChartOutlined />),
     getItem('Heat Map', 'averageDelayHeatMap', <CalendarOutlined />),
   ]),
   getItem('Number of Cars', 'average key', <AppstoreOutlined />, [
-    getItem('BarChart', 'averageKeyBar', <BarChartOutlined />),
+    getItem('Historical', 'averageKeyHistorical', <BarChartOutlined />),
     getItem('Heat Map', 'averageKeyHeatMap', <CalendarOutlined />),
   ]),
   getItem('Booking', 'booking', <AppstoreOutlined />, [
-    getItem('BarChart', 'bookingMetricBar', <BarChartOutlined />),
-    getItem('Heat Map', 'bookingMetricHeatMap', <CalendarOutlined /> ),
+    getItem('Historical', 'bookingMetricHistorical', <BarChartOutlined />),
     getItem('Forecast', 'bookingMetricForecast', <CalendarOutlined />),
+    getItem('Heat Map', 'bookingMetricHeatMap', <CalendarOutlined /> ),
   ]),
   getItem('Cancellation', 'cancellation', <AppstoreOutlined />,  [
-    getItem('BarChart', 'cancellationBar', <BarChartOutlined />),
+    getItem('Historical', 'cancellationHistorical', <BarChartOutlined />),
+    getItem('Forecast', 'cancellationForcast', <CalendarOutlined />),
     getItem('Heat Map', 'cancellationHeatMap', <CalendarOutlined />),
   ]),
   getItem('In Advance', 'in advance', <AppstoreOutlined />,  [
-    getItem('BarChart', 'inAdvanceBar', <BarChartOutlined />),
+    getItem('Historical', 'inAdvanceHistorical', <BarChartOutlined />),
     getItem('Heat Map', 'inAdvanceHeatMap', <CalendarOutlined />),
   ]),
   getItem('Stay Durations', 'stay', <AppstoreOutlined />,  [
-    getItem('BarChart', 'stayBar', <BarChartOutlined />),
+    getItem('Historical', 'stayHistorical', <BarChartOutlined />),
+    getItem('Forecast', 'stayForcast', <CalendarOutlined />),
     getItem('Heat Map', 'stayHeatMap', <CalendarOutlined />),
   ]),
 ];

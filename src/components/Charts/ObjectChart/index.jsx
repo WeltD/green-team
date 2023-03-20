@@ -1,16 +1,20 @@
 import React from 'react'
 import ReactEcharts from "echarts-for-react";
 
-const ForecastLine = (props) => {
+const ObjectChart = (props) => {
   
    const option = {
-        title: {
-          text: props.title
-        },
+        // title: {
+        //   text: props.title
+        // },
         tooltip: {
           trigger: 'axis'
         },
-        legend: {},
+        legend: {
+          textStyle:{
+            color: 'grey'
+          }
+        },
         toolbox: {
           show: true,
           orient: 'vertical',
@@ -43,4 +47,4 @@ const ForecastLine = (props) => {
   )
 }
 
-export default ForecastLine;
+export default ObjectChart;

@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   Breadcrumb,
   DatePicker,
-  Steps,
   Typography,
   Space,
   Button,
-  Divider,
+  Card,
 } from "antd";
 import { Link } from "react-router-dom";
 import HeatMap from "../../../components/Charts/Heatmap";
 import StatsBar from "../../../components/StatsBar";
+import Steps from "../../../components/Steps";
 
 import useWebSocket from "react-use-websocket";
 
@@ -60,6 +60,10 @@ const AverageKeyHeatMap = () => {
       }
     }
   }, [lastMessage]);
+
+  const disabledDate = (current) => {
+    return current && current > dayjs().endOf("day");
+  };
 
   // Set the date state when the date picker is changed
   const onChangeDatePicker = (date, dateString) => {
@@ -121,45 +125,38 @@ const AverageKeyHeatMap = () => {
           <Link to={"/averageKeyHeatMap"}>Average Key HeatMap</Link>
         </Breadcrumb.Item>
       </Breadcrumb>
+      
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        <Title level={3}>Average Key Historical HeatMap</Title>
+        {/*HeatMap Card */}
+        <Card
+          extra={<DatePicker onChange={onChangeDatePicker} disabledDate = {disabledDate} picker="month" />}
+        >
+          <Space
+            direction="vertical"
+            size="middle"
+            style={{
+              display: "flex",
+            }}
+          >
+            {/* HeatMap */}
+            <HeatMap data={chartData} range={date} max={chartMax} tooltip={[0, 1]} />
 
-      <Title level={3}>Average Key Data Analyze (HeatMap)</Title>
-
-      {/* Chart */}
-      <HeatMap data={chartData} range={date} max={chartMax} tooltip={[0, 1]} />
-
-      <Divider />
-
-      <Space direction="vertical">
+            {/* Submit Buttons */}
+            <Button onClick={onClickSubmit}>Submit Date</Button>
+          </Space>
+        </Card>
         {/* StatsBar */}
         <StatsBar data={statsBarData} />
-        <Space>
-          {/* Date Picker */}
-          <DatePicker onChange={onChangeDatePicker} picker="month" />
-
-          {/* Buttons */}
-          <Button onClick={onClickSubmit}>Submit Date</Button>
-        </Space>
-
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
+
       </Space>
 
       {/* <p>startDate message: {date}</p>

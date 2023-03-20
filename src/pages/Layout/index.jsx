@@ -1,18 +1,17 @@
-import { Layout as AntLayout, theme, Typography, ConfigProvider, Switch } from "antd";
+import { Layout as AntLayout, theme, ConfigProvider, Switch, Divider} from "antd";
 import { useState } from "react";
 
 import SideMenu from "../../components/SideMenu";
 
 const { Header, Content, Footer, Sider } = AntLayout;
-const { Text } = Typography;
-const {darkAlgorithm, defaultAlgorithm} = theme;
+const { darkAlgorithm, defaultAlgorithm } = theme;
 
 const Layout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [themeMode, setThemeMode] = useState('dark');
+  const [themeMode, setThemeMode] = useState("dark");
 
   function mode() {
-    if (themeMode === 'dark') {
+    if (themeMode === "dark") {
       return darkAlgorithm;
     } else {
       return defaultAlgorithm;
@@ -20,21 +19,19 @@ const Layout = ({ children }) => {
   }
 
   const onChangeTheme = (checked) => {
-    if(checked){
-      setThemeMode('dark');
-    }else{
-      setThemeMode('light');
+    if (checked) {
+      setThemeMode("dark");
+    } else {
+      setThemeMode("light");
     }
   };
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
   return (
-    <ConfigProvider theme={{
-      algorithm: mode(),
-    }}>
+    <ConfigProvider
+      theme={{
+        algorithm: mode(),
+      }}
+    >
       <AntLayout
         style={{
           minHeight: "100vh",
@@ -46,14 +43,21 @@ const Layout = ({ children }) => {
           onCollapse={(value) => setCollapsed(value)}
         >
           {/* 搜索栏 */}
-          <div
+          {/* <div
             style={{
               height: 32,
               margin: 16,
               background: "rgba(255, 255, 255, 0.2)",
             }}
-          ></div>
-          <Switch defaultChecked onChange={onChangeTheme}/>
+          /> */}
+          <Divider />
+          <Switch
+            defaultChecked
+            checkedChildren="Dark"
+            unCheckedChildren="Light"
+            onChange={onChangeTheme}
+          />
+          <Divider />
           <SideMenu />
         </Sider>
 
@@ -63,7 +67,13 @@ const Layout = ({ children }) => {
               margin: "0 16px",
             }}
           >
-            {children}
+            <div
+              style={{
+                minHeight: 360,
+              }}
+            >
+              {children}
+            </div>
           </Content>
 
           <Footer

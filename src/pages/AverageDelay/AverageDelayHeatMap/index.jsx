@@ -3,15 +3,15 @@ import {
   Breadcrumb,
   DatePicker,
   Radio,
-  Steps,
   Typography,
   Space,
   Button,
-  Divider,
+  Card,
 } from "antd";
 import { Link } from "react-router-dom";
 import HeatMap from "../../../components/Charts/Heatmap";
 import StatsBar from "../../../components/StatsBar";
+import Steps from "../../../components/Steps";
 
 import useWebSocket from "react-use-websocket";
 
@@ -70,6 +70,10 @@ const AverageDelayHeatMap = () => {
     }
   }, [lastMessage]);
 
+  const disabledDate = (current) => {
+    return current && current > dayjs().endOf("day");
+  };
+  
   const onChangeRadio = (e) => {
     setRadioValue(e.target.value);
 
@@ -156,52 +160,42 @@ const AverageDelayHeatMap = () => {
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>Cancellation Data Analyze (HeatMap)</Title>
-
-      {/* Chart */}
-      <HeatMap data={chartData} range={date} max={200} tooltip={[0, 1]} />
-
-      <Divider />
-
-      <Space direction="vertical">
-        {/* StatsBar */}
-        <StatsBar data={statsBarData} />
-        <Space>
-          {/* Date Picker */}
-          <DatePicker onChange={onChangeDatePicker} picker="month" />
-
-          {/* Buttons */}
-          <Button onClick={onClickSubmit}>Submit Date</Button>
-
-          {/* Radio */}
-          <Radio.Group onChange={onChangeRadio} value={radioValue}>
-            <Space wrap align="start">
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        <Title level={3}>Average Delay Historical HeatMap</Title>
+        {/*HeatMap Card */}
+        <Card
+          extra={<DatePicker onChange={onChangeDatePicker} disabledDate = {disabledDate} picker="month" />}
+        >
+          <Space
+            direction="vertical"
+            style={{
+              display: "flex",
+            }}
+          >
+            {/* HeatMap */}
+            <HeatMap data={chartData} range={date} max={200} tooltip={[0, 1]} />
+            {/* Radio Buttons */}
+            <Radio.Group onChange={onChangeRadio} value={radioValue}>
+              <Space wrap align="start">
               <Radio value={1}>Inbound</Radio>
               <Radio value={2}>Outbound</Radio>
-            </Space>
-          </Radio.Group>
-        </Space>
-
+              </Space>
+            </Radio.Group>
+            {/* Submit Buttons */}
+            <Button onClick={onClickSubmit}>Submit Date</Button>
+          </Space>
+        </Card>
+        {/* StatsBar */}
+        <StatsBar data={statsBarData} />
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
+
       </Space>
 
     <p>Last message: {lastMessage?.data}</p>

@@ -39,9 +39,11 @@ const CHeatMap = (props) => {
         cellSize: ["auto", "auto"],
         orient: "vertical",
         itemStyle: {
+          color: "rgba(128, 128, 128, 0.1)",
           borderWidth: 0.5,
         },
         dayLabel: {
+          color: 'grey',
           margin: 20,
           firstDay: 1,
           nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -50,6 +52,7 @@ const CHeatMap = (props) => {
           show: false
         },
         yearLabel: { show: false },
+
         range: props.range,
       },
     ],
@@ -60,6 +63,9 @@ const CHeatMap = (props) => {
       min: 0,
       max: props.max,
       calculable: true,
+      textStyle:{
+        color: 'grey'
+      },
     },
 
     color: "rgb(255,100,100)",
@@ -67,6 +73,9 @@ const CHeatMap = (props) => {
     legend: {
       top: "bottom",
       selectedMode: "single",
+      textStyle:{
+        color: 'grey'
+      }
     },
 
     toolbox: {

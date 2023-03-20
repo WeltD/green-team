@@ -1,7 +1,7 @@
 import React from "react";
 import ReactEcharts from "echarts-for-react";
 
-const BarChart = (props) => {
+const DataSetChart = (props) => {
   const option = {
     legend: {
       textStyle:{
@@ -9,7 +9,7 @@ const BarChart = (props) => {
       }
     },
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
     },
     dataset: {
       source: props.data,
@@ -42,4 +42,4 @@ const BarChart = (props) => {
   );
 };
 
-export default BarChart;
+export default DataSetChart;

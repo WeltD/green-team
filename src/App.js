@@ -6,33 +6,33 @@ import { HashRouter } from "react-router-dom";
 
 import Layout from './pages/Layout';
 import Home from './pages/Home';
-import Bar from './pages/Charts/Bar';
-import Pie from './pages/Charts/Pie';
 
-// Average Delay
-import AverageDelayBar from './pages/AverageDelay/AverageDelayBar';
+// // Average Delay
+import AverageDelayHistorical from './pages/AverageDelay/AverageDelayHistorical';
 import AverageDelayHeatMap from './pages/AverageDelay/AverageDelayHeatMap';
 
-// Average Key
-import AverageKeyBar from './pages/AverageKey/AverageKeyBar';
+// // Average Key
+import AverageKeyHistorical from './pages/AverageKey/AverageKeyHistorical';
 import AverageKeyHeatMap from './pages/AverageKey/AverageKeyHeatMap';
 
-// Booking Metric
-import BookingMetricBar from './pages/BookingMetric/BookingMetricBar';
+// // Booking Metric
+import BookingMetricHistorical from './pages/BookingMetric/BookingMetricHistorical';
 import BookingMetricHeatMap from './pages/BookingMetric/BookingMetricHeatMap';
 import BookingMetricForecast from './pages/BookingMetric/BookingMetricForecast';
 
 //Cancellation
-import CancellationBar from './pages/Cancellation/CancellationBar';
+import CancellationHistorical from './pages/Cancellation/CancellationHistorical';
+import CancellationForcast from './pages/Cancellation/CancellationForcast';
 import CancellationHeatMap from './pages/Cancellation/CancellationHeatMap';
 
-//InAdvance
-import InAdvanceBar from './pages/InAdvance/InAdvanceBar';
+// //InAdvance
+import InAdvanceHistorical from './pages/InAdvance/InAdvanceHistorical';
 import InAdvanceHeatMap from './pages/InAdvance/InAdvanceHeatMap';
 
-//Stay
-import StayBar from './pages/Stay/StayBar';
+// //Stay
+import StayHistorical from './pages/Stay/StayHistorical';
 import StayHeatMap from './pages/Stay/StayHeatMap';
+import StayForcast from './pages/Stay/StayForcast';
 
 function App() {
   return (
@@ -45,33 +45,33 @@ function App() {
         <Routes>
         
               <Route path="/" element={<Home />}/>
-              <Route path="/barchart" element={<Bar />}/>
-              <Route path="/piechart" element={<Pie />}/>
 
-              {/* Average Key */}
-              <Route path="/AverageDelayBar" element={<AverageDelayBar />}/>
+              {/* Average Delay */}
+              <Route path="/averageDelayHistorical" element={<AverageDelayHistorical />}/>
               <Route path="/AverageDelayHeatMap" element={<AverageDelayHeatMap />}/>
 
               {/* Average Key */}
-              <Route path="/AverageKeyBar" element={<AverageKeyBar />}/>
+              <Route path="/averageKeyHistorical" element={<AverageKeyHistorical />}/>
               <Route path="/AverageKeyHeatMap" element={<AverageKeyHeatMap />}/>
 
               {/* Booking Metric */}
-              <Route path="/bookingMetricBar" element={<BookingMetricBar />}/>
+              <Route path="/bookingMetricHistorical" element={<BookingMetricHistorical />}/>
               <Route path="/bookingMetricHeatMap" element={<BookingMetricHeatMap />}/>
               <Route path="/bookingMetricForecast" element={<BookingMetricForecast />}/>
 
               {/* Cancellation */}
-              <Route path="/cancellationBar" element={<CancellationBar />}/>
+              <Route path="/cancellationHistorical" element={<CancellationHistorical />}/>
+              <Route path="/cancellationForcast" element={<CancellationForcast />}/>
               <Route path="/cancellationHeatMap" element={<CancellationHeatMap />}/>
 
               {/* In Advance */}
-              <Route path="/inAdvanceBar" element={<InAdvanceBar />}/>
+              <Route path="/inAdvanceHistorical" element={<InAdvanceHistorical />}/>
               <Route path="/inAdvanceHeatMap" element={<InAdvanceHeatMap />}/>
 
               {/* Stay */}
-              <Route path="/stayBar" element={<StayBar />}/>
+              <Route path="/stayHistorical" element={<StayHistorical />}/>
               <Route path="/stayHeatMap" element={<StayHeatMap />}/>
+              <Route path="/stayForcast" element={<StayForcast />}/>
         
               {/* 默认路由 */}
               <Route path="*" element={<Navigate to="/" replace />} />

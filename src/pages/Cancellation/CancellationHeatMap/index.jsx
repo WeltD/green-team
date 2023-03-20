@@ -3,15 +3,15 @@ import {
   Breadcrumb,
   DatePicker,
   Radio,
-  Steps,
   Typography,
   Space,
   Button,
-  Divider,
+  Card,
 } from "antd";
 import { Link } from "react-router-dom";
 import CHeatMap from "./CHeatMap";
 import StatsBar from "../../../components/StatsBar";
+import Steps from "../../../components/Steps";
 
 import useWebSocket from "react-use-websocket";
 
@@ -76,6 +76,10 @@ const CancellationHeatMap = () => {
     }
   }, [lastMessage]);
 
+  const disabledDate = (current) => {
+    return current && current > dayjs().endOf("day");
+  };
+
   const onChangeRadio = (e) => {
     console.log("radio checked", e.target.value);
     setRadioValue(e.target.value);
@@ -112,7 +116,6 @@ const CancellationHeatMap = () => {
     setCurrent(0);
     setStatus("process");
     setDate(dateString);
-    // console.log(date, dateString);
   };
 
   // Compile the date and action into a massage and send it to the backend
@@ -169,57 +172,43 @@ const CancellationHeatMap = () => {
         </Breadcrumb.Item>
       </Breadcrumb>
 
-      <Title level={3}>Cancellation Data Analyze (HeatMap)</Title>
-
-      {/* Chart */}
-      {/* <HeatMap
-        data={chartData}
-        range={date}
-        max={chartMax}
-        tooltip={[0, 1, 2, 3]}
-      /> */}
-      <CHeatMap data={chartData} range={date} max={chartMax} />
-      <Divider />
-      <Space direction="vertical">
+      {/* Content */}
+      <Space
+        direction="vertical"
+        size="middle"
+        style={{
+          display: "flex",
+        }}
+      >
+        <Title level={3}>Cancellation Historical HeatMap</Title>
+        {/*HeatMap Card */}
+        <Card
+          extra={<DatePicker onChange={onChangeDatePicker} disabledDate = {disabledDate} picker="month" />}
+        >
+          <Space
+            direction="vertical"
+            style={{
+              display: "flex",
+            }}
+          >
+            {/* HeatMap */}
+            <CHeatMap data={chartData} range={date} max={chartMax} />
+            {/* Radio Buttons */}
+            <Radio.Group onChange={onChangeRadio} value={radioValue}>
+              <Space wrap align="start">
+                <Radio value={1}>Rates</Radio>
+                <Radio value={2}>Numbers</Radio>
+              </Space>
+            </Radio.Group>
+            {/* Submit Buttons */}
+            <Button onClick={onClickSubmit}>Submit Date</Button>
+          </Space>
+        </Card>
         {/* StatsBar */}
         <StatsBar data={statsBarData} />
-
-        <Space>
-          {/* Date Picker */}
-          <DatePicker onChange={onChangeDatePicker} picker="month" />
-
-          {/* Buttons */}
-          <Button onClick={onClickSubmit}>Submit Date</Button>
-
-          {/* Radio */}
-          <Radio.Group onChange={onChangeRadio} value={radioValue}>
-            <Space wrap align="start">
-              <Radio value={1}>Rates</Radio>
-              <Radio value={2}>Numbers</Radio>
-            </Space>
-          </Radio.Group>
-        </Space>
-
         {/* Steps */}
-        <Steps
-          current={current}
-          status={status}
-          items={[
-            {
-              title: "Select date",
-              description:
-                "Select and submit the date, you can switch between daily and monthly view.",
-            },
-            {
-              title: "Analyze data",
-              description: "Please wait for data processing.",
-            },
-            {
-              title: "Visualize data",
-              description: "Visualize data in the chart and stats bar above.",
-            },
-          ]}
-        />
+        <Steps current={current} status={status} />
+
       </Space>
 
       {/* <p>startDate message: {date}</p>
